@@ -5,11 +5,13 @@ let autoClicksPerSecond = 0;
 let upgradeClickCost = 15;
 let upgradeAutoCost = 50;
 
-// Структура ачивок
+// Структура ачивок (расширена)
 let achievements = {
     firstSteps: false,
     clickMaster: false,
-    autoTycoon: false
+    autoTycoon: false,
+    luckySeven: false,
+    millionaire: false
 };
 
 // Элементы DOM игры
@@ -21,7 +23,7 @@ const upgradeAutoBtn = document.getElementById('upgrade-auto');
 const resetBtn = document.getElementById('reset-btn');
 const gameContainer = document.getElementById('game-container');
 
-// Элементы ачивок и всплывающего окна
+// Элементы ачивок
 const achievementsToggle = document.getElementById('achievements-toggle');
 const achievementsPanel = document.getElementById('achievements-panel');
 const toastNotification = document.getElementById('toast-notification');
@@ -49,6 +51,8 @@ function loadGame() {
         achievements.firstSteps = localStorage.getItem('ach_firstSteps') === 'true';
         achievements.clickMaster = localStorage.getItem('ach_clickMaster') === 'true';
         achievements.autoTycoon = localStorage.getItem('ach_autoTycoon') === 'true';
+        achievements.luckySeven = localStorage.getItem('ach_luckySeven') === 'true';
+        achievements.millionaire = localStorage.getItem('ach_millionaire') === 'true';
     }
     updateUI();
 }
@@ -64,25 +68,21 @@ function saveGame() {
     localStorage.setItem('ach_firstSteps', achievements.firstSteps);
     localStorage.setItem('ach_clickMaster', achievements.clickMaster);
     localStorage.setItem('ach_autoTycoon', achievements.autoTycoon);
+    localStorage.setItem('ach_luckySeven', achievements.luckySeven);
+    localStorage.setItem('ach_millionaire', achievements.millionaire);
 }
 
-// ФУНКЦИЯ ДЛЯ ВЫЛЕТАНИЯ АЧИВКИ СНИЗУ ЭКРАНА
+// Функция для вылетания ачивки снизу экрана
 function showToast(title) {
     if (!toastNotification || !toastText) return;
-
-    // Устанавливаем текст ачивки в плашку
     toastText.textContent = title;
-    
-    // Добавляем класс, который поднимает плашку снизу
     toastNotification.classList.add('show');
-
-    // Через 3 секунды убираем плашку обратно под экран
     setTimeout(() => {
         toastNotification.classList.remove('show');
     }, 3000);
 }
 
-// Проверка условий достижений
+// Проверка условий всех достижений
 function checkAchievements(isInitialLoad = false) {
     // 1. Ачивка "Первые шаги"
     if (!achievements.firstSteps && score >= 10) {
@@ -99,11 +99,23 @@ function checkAchievements(isInitialLoad = false) {
         achievements.autoTycoon = true;
         if (!isInitialLoad) showToast("Авто-магнат (Куплен автокликер)");
     }
+    // 4. Секретная ачивка "Счастливая семерка" (строго равенство)
+    if (!achievements.luckySeven && score === 777) {
+        achievements.luckySeven = true;
+        if (!isInitialLoad) showToast("Счастливая семерка (Ровно 777!)");
+    }
+    // 5. Ачивка "Миллионер"
+    if (!achievements.millionaire && score >= 1000000) {
+        achievements.millionaire = true;
+        if (!isInitialLoad) showToast("Миллионер (1,000,000 очков!)");
+    }
 
-    // Обновление скрытого списка
+    // Обновление интерфейса списка ачивок
     updateAchievementUI('ach-first-steps', 'badge-first-steps', achievements.firstSteps);
     updateAchievementUI('ach-click-master', 'badge-click-master', achievements.clickMaster);
     updateAchievementUI('ach-auto-tycoon', 'badge-auto-tycoon', achievements.autoTycoon);
+    updateAchievementUI('ach-lucky-seven', 'badge-lucky-seven', achievements.luckySeven);
+    updateAchievementUI('ach-millionaire', 'badge-millionaire', achievements.millionaire);
 }
 
 function updateAchievementUI(rowId, badgeId, isUnlocked) {
@@ -180,7 +192,7 @@ if (clickBtn) {
     clickBtn.onclick = function(event) {
         score += clickPower;
         startMusic();
-        updateUI(false); // Разрешаем вылет тостов при активной игре
+        updateUI(false); 
         saveGame();
         createFloatingNumber(event);
 
@@ -215,7 +227,7 @@ if (upgradeAutoBtn) {
     });
 }
 
-// Логика кнопки «🏆 Достижения» (Плавное открытие/закрытие списка)
+// Кнопка достижений
 if (achievementsToggle && achievementsPanel) {
     achievementsToggle.addEventListener('click', () => {
         achievementsPanel.classList.toggle('open');
@@ -235,7 +247,9 @@ if (resetBtn) {
             achievements.firstSteps = false;
             achievements.clickMaster = false;
             achievements.autoTycoon = false;
-            updateUI(true); // Блокируем вылет тостов при сбросе
+            achievements.luckySeven = false;
+            achievements.millionaire = false;
+            updateUI(true); 
         }
     });
 }
@@ -263,6 +277,6 @@ setInterval(() => {
     }
 }, 1000);
 
-// Инициализация при первой загрузке (блокируем тосты старых ачивок)
 loadGame();
 checkAchievements(true); 
+
