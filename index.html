@@ -5,15 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мега Кликер с Автосохранением</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f0f0; padding-top: 50px; }
-        .container { background: white; padding: 30px; border-radius: 10px; display: inline-block; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 5px; border: none; background: #007bff; color: white; margin: 10px; }
+        /* Темный фон для всей страницы */
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            background: #121212; 
+            color: #ffffff;
+            padding-top: 50px; 
+        }
+        /* Графитовая контрастная карточка игры */
+        .container { 
+            background: #1e1e1e; 
+            padding: 30px; 
+            border-radius: 10px; 
+            display: inline-block; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
+            border: 1px solid #333;
+        }
+        /* Главная синяя кнопка клика */
+        button { 
+            padding: 15px 30px; 
+            font-size: 18px; 
+            cursor: pointer; 
+            border-radius: 5px; 
+            border: none; 
+            background: #007bff; 
+            color: white; 
+            margin: 10px; 
+            font-weight: bold;
+            transition: background 0.2s;
+        }
         button:hover { background: #0056b3; }
-        .shop { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; }
+        /* Разделитель магазина */
+        .shop { 
+            margin-top: 20px; 
+            border-top: 1px solid #333; 
+            padding-top: 20px; 
+        }
+        /* Зеленые кнопки улучшений */
         .shop button { background: #28a745; font-size: 14px; padding: 10px 20px; }
         .shop button:hover { background: #218838; }
-        #music-toggle { background: #6c757d; font-size: 14px; padding: 8px 15px; }
-        #music-toggle:hover { background: #5a6268; }
+        /* Кнопка управления звуком */
+        #music-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
+        #music-toggle:hover { background: #4e4e4e; }
+        /* Второстепенный тусклый текст для статистики */
+        #stats-display { color: #aaaaaa; }
     </style>
 </head>
 <body>
@@ -42,7 +78,6 @@
 <audio id="bg-music" loop>
     <source src="music.mp3" type="audio/mp3">
 </audio>
-
 
 <script src="script.js"></script>
 </body>
