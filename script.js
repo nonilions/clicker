@@ -9,8 +9,20 @@ let clickUpgradeLevel = 1;
 // Переменные перерождений
 let rebirthLevel = 0;
 let scoreMultiplier = 1.0;
-// Точный список стоимостей перерождений
-const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
+
+// ТОЧНЫЙ СПИСОК СТОИМОСТЕЙ ПЕРЕРОЖДЕНИЙ ПО ВАШЕМУ ЗАПРОСУ
+const rebirthCosts = [
+    100000,   // 1-ое перерождение
+    500000,   // 2-ое
+    1000000,  // 3-е
+    2000000,  // 4-е
+    3500000,  // 5-е
+    5000000,  // 6-е
+    7500000,  // 7-е
+    10000000, // 8-е
+    15000000, // 9-е
+    25000000  // 10-е
+];
 
 // Структура ачивок
 let achievements = {
@@ -170,7 +182,6 @@ function updateUI(isInitialLoad = false) {
         multiplierDisplay.textContent = `Множитель перерождения: x${scoreMultiplier.toFixed(2)} (Уровень ${rebirthLevel})`;
     }
     
-    // БЕЗОПАСНОЕ ОБНОВЛЕНИЕ ТЕКСТА КНОПОК
     if (clickTextEl) clickTextEl.textContent = `🚀 Сильный клик (+${clickUpgradeLevel} за нажатие)`;
     if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
     if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
@@ -245,6 +256,3 @@ if (upgradeAutoBtn) {
 // Перерождение
 if (rebirthBtn) {
     rebirthBtn.addEventListener('click', () => {
-        if (rebirthLevel >= 10) return;
-        let currentCost = rebirthCosts[rebirthLevel];
-        if (score >= currentCost) {
