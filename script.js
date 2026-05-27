@@ -1,6 +1,9 @@
 let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1; 
 let rebirthLevel = 0, scoreMultiplier = 1.0;
+
+// ИСПРАВЛЕНО: Массив стоимостей перерождений по вашему точному списку
 const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
+
 let achievements = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
 
 const scoreDisplay = document.getElementById('score-display'), statsDisplay = document.getElementById('stats-display'), multiplierDisplay = document.getElementById('multiplier-display');
