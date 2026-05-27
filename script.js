@@ -18,7 +18,7 @@ const bgMusic = document.getElementById('bg-music');
 const musicToggle = document.getElementById('music-toggle');
 let musicStarted = false;
 
-// Настройка тихой громкости звука (0.15 — это 15% от максимума)
+// Настройка тихой громкости звука (15% от максимума)
 if (bgMusic) {
     bgMusic.volume = 0.15;
 }
@@ -45,86 +45,101 @@ function saveGame() {
     localStorage.setItem('clicker_auto_cost', upgradeAutoCost);
 }
 
-// Обновление текста на экране
+// Обновление интерфейса
 function updateUI() {
-    scoreDisplay.textContent = score;
-    statsDisplay.textContent = `Сила клика: ${clickPower} | В секунду: ${autoClicksPerSecond}`;
-    document.getElementById('click-cost').textContent = upgradeClickCost;
-    document.getElementById('auto-cost').textContent = upgradeAutoCost;
+    if (scoreDisplay) scoreDisplay.textContent = score;
+    if (statsDisplay) statsDisplay.textContent = `Сила клика: ${clickPower} | В секунду: ${autoClicksPerSecond}`;
+    
+    const clickCostEl = document.getElementById('click-cost');
+    const autoCostEl = document.getElementById('auto-cost');
+    if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
+    if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
 }
 
-// Функция включения музыки при взаимодействии
+// Безопасный запуск музыки
 function startMusic() {
     if (!musicStarted && bgMusic) {
         bgMusic.play().then(() => {
             musicStarted = true;
-            musicToggle.textContent = "🔊 Звук: Вкл";
-        }).catch(err => console.log("Браузер ожидает клика пользователя...", err));
+            if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл";
+        }).catch(err => console.log("Браузер заблокировал музыку до первого клика", err));
     }
 }
 
-// Клик по главной кнопке
-clickBtn.addEventListener('click', () => {
-    score += clickPower;
-    startMusic(); // Включает музыку при самом первом клике в игре
-    updateUI();
-    saveGame();
-});
-
-// Покупка сильного клика
-upgradeClickBtn.addEventListener('click', () => {
-    if (score >= upgradeClickCost) {
-        score -= upgradeClickCost;
-        clickPower += 1;
-        upgradeClickCost = Math.round(upgradeClickCost * 1.5);
+// Главный клик по игре
+if (clickBtn) {
+    clickBtn.addEventListener('click', () => {
+        score += clickPower;
+        startMusic(); // Включает музыку автоматически при клике на игру
         updateUI();
         saveGame();
-    }
-});
+    });
+}
+
+// Покупка клика
+if (upgradeClickBtn) {
+    upgradeClickBtn.addEventListener('click', () => {
+        if (score >= upgradeClickCost) {
+            score -= upgradeClickCost;
+            clickPower += 1;
+            upgradeClickCost = Math.round(upgradeClickCost * 1.5);
+            updateUI();
+            saveGame();
+        }
+    });
+}
 
 // Покупка автокликера
-upgradeAutoBtn.addEventListener('click', () => {
-    if (score >= upgradeAutoCost) {
-        score -= upgradeAutoCost;
-        autoClicksPerSecond += 1;
-        upgradeAutoCost = Math.round(upgradeAutoCost * 1.5);
-        updateUI();
-        saveGame();
-    }
-});
+if (upgradeAutoBtn) {
+    upgradeAutoBtn.addEventListener('click', () => {
+        if (score >= upgradeAutoCost) {
+            score -= upgradeAutoCost;
+            autoClicksPerSecond += 1;
+            upgradeAutoCost = Math.round(upgradeAutoCost * 1.5);
+            updateUI();
+            saveGame();
+        }
+    });
+}
 
-// Сброс прогресса
-resetBtn.addEventListener('click', () => {
-    if (confirm("Вы уверены, что хотите сбросить весь прогресс?")) {
-        localStorage.clear();
-        score = 0;
-        clickPower = 1;
-        autoClicksPerSecond = 0;
-        upgradeClickCost = 15;
-        upgradeAutoCost = 50;
-        updateUI();
-    }
-});
+// Сброс
+if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+        if (confirm("Вы уверены, что хотите сбросить весь прогресс?")) {
+            localStorage.clear();
+            score = 0;
+            clickPower = 1;
+            autoClicksPerSecond = 0;
+            upgradeClickCost = 15;
+            upgradeAutoCost = 50;
+            updateUI();
+        }
+    });
+}
 
-// Кнопка управления музыкой Вкл/Выкл
-musicToggle.addEventListener('click', () => {
-    if (!bgMusic) return;
-    
-    if (!musicStarted) {
-        startMusic();
-        return;
-    }
+// Надежный обработчик для кнопки звука
+if (musicToggle) {
+    musicToggle.addEventListener('click', () => {
+        if (!bgMusic) return;
 
-    if (bgMusic.paused) {
-        bgMusic.play();
-        musicToggle.textContent = "🔊 Звук: Вкл";
-    } else {
-        bgMusic.pause();
-        musicToggle.textContent = "🔇 Звук: Выкл";
-    }
-});
+        if (bgMusic.paused) {
+            bgMusic.play()
+                .then(() => {
+                    musicStarted = true;
+                    musicToggle.textContent = "🔊 Звук: Вкл";
+                })
+                .catch(err => {
+                    alert("Сначала сделайте хотя бы один клик по большой синей кнопке игры!");
+                    console.log(err);
+                });
+        } else {
+            bgMusic.pause();
+            musicToggle.textContent = "🔇 Звук: Выкл";
+        }
+    });
+}
 
-// Работа автокликера раз в секунду
+// Автокликер раз в секунду
 setInterval(() => {
     if (autoClicksPerSecond > 0) {
         score += autoClicksPerSecond;
@@ -133,5 +148,4 @@ setInterval(() => {
     }
 }, 1000);
 
-// Инициализация игры при старте страницы
 loadGame();
