@@ -56,24 +56,28 @@ function updateUI() {
     if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
 }
 
-// Безопасный запуск музыки
+// Принудительный запуск локального аудио
 function startMusic() {
     if (!musicStarted && bgMusic) {
-        bgMusic.play().then(() => {
-            musicStarted = true;
-            if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл";
-        }).catch(err => console.log("Браузер заблокировал музыку до первого клика", err));
+        bgMusic.play()
+            .then(() => {
+                musicStarted = true;
+                if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл";
+            })
+            .catch(err => {
+                console.log("Воспроизведение ожидает клика пользователя...", err);
+            });
     }
 }
 
 // Главный клик по игре
 if (clickBtn) {
-    clickBtn.addEventListener('click', () => {
+    clickBtn.onclick = function() {
         score += clickPower;
-        startMusic(); // Включает музыку автоматически при клике на игру
+        startMusic(); // Метод гарантированно включает локальный файл music.mp3
         updateUI();
         saveGame();
-    });
+    };
 }
 
 // Покупка клика
@@ -102,7 +106,7 @@ if (upgradeAutoBtn) {
     });
 }
 
-// Сброс
+// Сброс прогресса
 if (resetBtn) {
     resetBtn.addEventListener('click', () => {
         if (confirm("Вы уверены, что хотите сбросить весь прогресс?")) {
@@ -117,7 +121,7 @@ if (resetBtn) {
     });
 }
 
-// Надежный обработчик для кнопки звука
+// Кнопка звука
 if (musicToggle) {
     musicToggle.addEventListener('click', () => {
         if (!bgMusic) return;
@@ -129,8 +133,7 @@ if (musicToggle) {
                     musicToggle.textContent = "🔊 Звук: Вкл";
                 })
                 .catch(err => {
-                    alert("Сначала сделайте хотя бы один клик по большой синей кнопке игры!");
-                    console.log(err);
+                    alert("Сначала сделайте клик по синей кнопке игры!");
                 });
         } else {
             bgMusic.pause();
@@ -139,7 +142,7 @@ if (musicToggle) {
     });
 }
 
-// Автокликер раз в секунду
+// Автокликер (раз в секунду)
 setInterval(() => {
     if (autoClicksPerSecond > 0) {
         score += autoClicksPerSecond;
@@ -148,4 +151,5 @@ setInterval(() => {
     }
 }, 1000);
 
+// Старт игры
 loadGame();
