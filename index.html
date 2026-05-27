@@ -33,7 +33,7 @@
             color: white; 
             margin: 10px; 
             font-weight: bold;
-            transition: background 0.2s;
+            transition: background 0.2s, opacity 0.2s;
         }
         button:hover { background: #0056b3; }
         /* Разделитель магазина */
@@ -42,9 +42,21 @@
             border-top: 1px solid #333; 
             padding-top: 20px; 
         }
-        /* Зеленые кнопки улучшений */
+        /* Зеленые активные кнопки улучшений (когда очков хватает) */
         .shop button { background: #28a745; font-size: 14px; padding: 10px 20px; }
         .shop button:hover { background: #218838; }
+        
+        /* СТИЛЬ ДЛЯ СЕРЫХ КНОПОК (когда очков НЕ хватает) */
+        .shop button.disabled {
+            background: #444444 !important;
+            color: #888888 !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .shop button.disabled:hover {
+            background: #444444 !important;
+        }
+
         /* Кнопка управления звуком */
         #music-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
         #music-toggle:hover { background: #4e4e4e; }
@@ -63,8 +75,9 @@
 
     <div class="shop">
         <h3>Магазин улучшений</h3>
-        <button id="upgrade-click">🚀 Сильный клик (+1 за нажатие) <span id="click-cost">15</span> очков</button>
-        <button id="upgrade-auto">🤖 Автокликер (+1 в сек.) <span id="auto-cost">50</span> очков</button>
+        <!-- Изначально вешаем класс disabled, пока игра не проверит баланс -->
+        <button id="upgrade-click" class="disabled">🚀 Сильный клик (+1 за нажатие) <span id="click-cost">15</span> очков</button>
+        <button id="upgrade-auto" class="disabled">🤖 Автокликер (+1 в сек.) <span id="auto-cost">50</span> очков</button>
         <br><br>
         <button id="reset-btn" style="background:#dc3545;">Сбросить прогресс</button>
     </div>
