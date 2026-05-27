@@ -47,21 +47,18 @@ function saveGame() {
 
 // Проверка баланса и динамическое перекрашивание кнопок магазина
 function checkButtons() {
-    // Для первого улучшения (Сильный клик)
     if (upgradeClickBtn) {
         if (score >= upgradeClickCost) {
-            upgradeClickBtn.classList.remove('disabled'); // Делаем зеленой
+            upgradeClickBtn.classList.remove('disabled');
         } else {
-            upgradeClickBtn.classList.add('disabled');    // Делаем серой
+            upgradeClickBtn.classList.add('disabled');
         }
     }
-    
-    // Для второго улучшения (Автокликер)
     if (upgradeAutoBtn) {
         if (score >= upgradeAutoCost) {
-            upgradeAutoBtn.classList.remove('disabled');  // Делаем зеленой
+            upgradeAutoBtn.classList.remove('disabled');
         } else {
-            upgradeAutoBtn.classList.add('disabled');     // Делаем серой
+            upgradeAutoBtn.classList.add('disabled');
         }
     }
 }
@@ -76,7 +73,6 @@ function updateUI() {
     if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
     if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
     
-    // Каждый раз при обновлении экрана проверяем доступность кнопок
     checkButtons();
 }
 
@@ -90,13 +86,21 @@ function startMusic() {
     }
 }
 
-// Главный клик по игре
+// Главный клик по игре с эффектом плавного сжатия
 if (clickBtn) {
     clickBtn.onclick = function() {
         score += clickPower;
         startMusic();
         updateUI();
         saveGame();
+
+        // Добавляем класс плавного сжатия кнопочки
+        clickBtn.classList.add('active-click');
+        
+        // Через 80 миллисекунд плавно возвращаем её в прежнее состояние
+        setTimeout(() => {
+            clickBtn.classList.remove('active-click');
+        }, 80);
     };
 }
 
