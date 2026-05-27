@@ -5,22 +5,24 @@ let autoClicksPerSecond = 0;
 let upgradeClickCost = 15;
 let upgradeAutoCost = 50;
 
+// НОВАЯ ПЕРЕМЕННАЯ: уровень прокачки клика (чтобы бонус рос: +1, +2, +3...)
+let clickUpgradeLevel = 1; 
+
 // Переменные перерождений
 let rebirthLevel = 0;
 let scoreMultiplier = 1.0;
-
-// ТОЧНЫЙ МАССИВ СТОИМОСТИ ПЕРЕРОЖДЕНИЙ ПО ВАШЕМУ ЗАПРОСУ (от 1-го до 10-го)
+// Точный массив стоимости перерождений по вашему списку (от 1-го до 10-го)
 const rebirthCosts = [
-    100000,   // 1-ое перерождение
-    500000,   // 2-ое перерождение
-    1000000,  // 3-е перерождение
-    2000000,  // 4-е перерождение
-    3500000,  // 5-е перерождение
-    5000000,  // 6-е перерождение
-    7500000,  // 7-е перерождение
-    10000000, // 8-ое перерождение
-    15000000, // 9-ое перерождение
-    25000000  // 10-ое перерождение
+    100000,   // 1-ое
+    500000,   // 2-ое
+    1000000,  // 3-е
+    2000000,  // 4-е
+    3500000,  // 5-е
+    5000000,  // 6-е
+    7500000,  // 7-е
+    10000000, // 8-е
+    15000000, // 9-е
+    25000000  // 10-е
 ];
 
 // Структура ачивок
@@ -69,6 +71,10 @@ function loadGame() {
         upgradeClickCost = parseInt(localStorage.getItem('clicker_click_cost') || 15);
         upgradeAutoCost = parseInt(localStorage.getItem('clicker_auto_cost') || 50);
         
+        // Загрузка уровня прокачки клика
+        clickUpgradeLevel = parseInt(localStorage.getItem('clicker_click_level') || 1);
+
+        // Загрузка престижа
         rebirthLevel = parseInt(localStorage.getItem('clicker_rebirth_level') || 0);
         scoreMultiplier = parseFloat(localStorage.getItem('clicker_multiplier') || 1.0);
 
@@ -88,6 +94,7 @@ function saveGame() {
     localStorage.setItem('clicker_auto', autoClicksPerSecond);
     localStorage.setItem('clicker_click_cost', upgradeClickCost);
     localStorage.setItem('clicker_auto_cost', upgradeAutoCost);
+    localStorage.setItem('clicker_click_level', clickUpgradeLevel);
     
     localStorage.setItem('clicker_rebirth_level', rebirthLevel);
     localStorage.setItem('clicker_multiplier', scoreMultiplier);
@@ -107,7 +114,7 @@ function showToast(title) {
     setTimeout(() => { toastNotification.classList.remove('show'); }, 3000);
 }
 
-// Проверка условий всех достижений
+// Проверка ачивок
 function checkAchievements(isInitialLoad = false) {
     if (!achievements.firstSteps && score >= 10) {
         achievements.firstSteps = true;
@@ -155,7 +162,6 @@ function checkButtons() {
         else upgradeAutoBtn.classList.add('disabled');
     }
 
-    // Применение новых лимитов и стоимости на кнопке
     if (rebirthBtn && rebirthCostEl) {
         if (rebirthLevel >= 10) {
             rebirthBtn.classList.add('disabled');
@@ -163,12 +169,8 @@ function checkButtons() {
         } else {
             let currentCost = rebirthCosts[rebirthLevel];
             rebirthCostEl.textContent = currentCost.toLocaleString() + " ";
-            
-            if (score >= currentCost) {
-                rebirthBtn.classList.remove('disabled');
-            } else {
-                rebirthBtn.classList.add('disabled');
-            }
+            if (score >= currentCost) rebirthBtn.classList.remove('disabled');
+            else rebirthBtn.classList.add('disabled');
         }
     }
 }
@@ -185,9 +187,12 @@ function updateUI(isInitialLoad = false) {
         multiplierDisplay.textContent = `Множитель перерождения: x${scoreMultiplier.toFixed(2)} (Уровень ${rebirthLevel})`;
     }
     
-    const clickCostEl = document.getElementById('click-cost');
+    // ДИНАМИЧЕСКИЙ ТЕКСТ: Кнопка теперь показывает правильный следующий бонус (+1, +2, +3...)
+    if (upgradeClickBtn) {
+        upgradeClickBtn.innerHTML = `🚀 Сильный клик (+${clickUpgradeLevel} за нажатие) <span id="click-cost">${upgradeClickCost}</span> очков`;
+    }
+    
     const autoCostEl = document.getElementById('auto-cost');
-    if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
     if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
     
     checkButtons();
@@ -207,10 +212,8 @@ function createFloatingNumber(event) {
     if (!gameContainer) return;
     const floatEl = document.createElement('div');
     floatEl.className = 'floating-number';
-    
     let addedValue = (clickPower * scoreMultiplier).toFixed(1);
     floatEl.textContent = `+${addedValue}`;
-    
     const rect = gameContainer.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -234,32 +237,14 @@ if (clickBtn) {
     };
 }
 
-// Покупка клика
+// ПОКУПКА УЛУЧШЕНИЯ КЛИКА (Теперь бонус прогрессирует)
 if (upgradeClickBtn) {
     upgradeClickBtn.addEventListener('click', () => {
         if (score >= upgradeClickCost) {
             score -= upgradeClickCost;
-            clickPower += 1;
-            upgradeClickCost = Math.round(upgradeClickCost * 1.5);
+            
+            clickPower += clickUpgradeLevel; // Добавляем текущий увеличивающийся бонус
+            clickUpgradeLevel += 1;          // Увеличиваем бонус для следующей покупки (+1 превращается в +2 и т.д.)
+            
+            upgradeClickCost = Math.round(upgradeClickCost * 1.6); // Цена растет чуть быстрее из-за сильного бонуса
             updateUI(false);
-            saveGame();
-        }
-    });
-}
-
-// Покупка автокликера
-if (upgradeAutoBtn) {
-    upgradeAutoBtn.addEventListener('click', () => {
-        if (score >= upgradeAutoCost) {
-            score -= upgradeAutoCost;
-            autoClicksPerSecond += 1;
-            upgradeAutoCost = Math.round(upgradeAutoCost * 1.5);
-            updateUI(false);
-            saveGame();
-        }
-    });
-}
-
-// Логика нажатия на перерождение
-if (rebirthBtn) {
-    rebirthBtn.addEventListener('click', () => {
