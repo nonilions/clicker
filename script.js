@@ -1,4 +1,4 @@
-let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1, rebirthLevel = 0, scoreMultiplier = 1.0, musicStarted = false;
+let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1, autoUpgradeLevel = 1, rebirthLevel = 0, scoreMultiplier = 1.0, musicStarted = false;
 const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
 let achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
 
@@ -18,6 +18,7 @@ function loadGame() {
         upgradeClickCost = parseInt(localStorage.getItem('clicker_click_cost') || 15);
         upgradeAutoCost = parseInt(localStorage.getItem('clicker_auto_cost') || 50);
         clickUpgradeLevel = parseInt(localStorage.getItem('clicker_click_level') || 1);
+        autoUpgradeLevel = parseInt(localStorage.getItem('clicker_auto_level') || 1);
         rebirthLevel = parseInt(localStorage.getItem('clicker_rebirth_level') || 0);
         scoreMultiplier = parseFloat(localStorage.getItem('clicker_multiplier') || 1.0);
         achs.firstSteps = localStorage.getItem('ach_firstSteps') === 'true';
@@ -33,6 +34,7 @@ function saveGame() {
     localStorage.setItem('clicker_score', score); localStorage.setItem('clicker_power', clickPower);
     localStorage.setItem('clicker_auto', autoClicksPerSecond); localStorage.setItem('clicker_click_cost', upgradeClickCost);
     localStorage.setItem('clicker_auto_cost', upgradeAutoCost); localStorage.setItem('clicker_click_level', clickUpgradeLevel);
+    localStorage.setItem('clicker_auto_level', autoUpgradeLevel);
     localStorage.setItem('clicker_rebirth_level', rebirthLevel); localStorage.setItem('clicker_multiplier', scoreMultiplier);
     localStorage.setItem('ach_firstSteps', achs.firstSteps); localStorage.setItem('ach_clickMaster', achs.clickMaster);
     localStorage.setItem('ach_autoTycoon', achs.autoTycoon); localStorage.setItem('ach_luckySeven', achs.luckySeven);
@@ -68,8 +70,11 @@ function updateUI(init = false) {
     if (stDisp) stDisp.textContent = `Сила клика: ${(clickPower * scoreMultiplier).toFixed(2)} | В секунду: ${(autoClicksPerSecond * scoreMultiplier).toFixed(2)}`;
     if (mDisp) mDisp.textContent = `Множитель перерождения: x${scoreMultiplier.toFixed(2)} (Уровень ${rebirthLevel})`;
     if (cTxt) cTxt.textContent = `🚀 Сильный клик (+${clickUpgradeLevel} за нажатие)`;
+    if (upABtn) {
+        // Динамический текст для автокликера с растущим бонусом
+        upABtn.innerHTML = `🤖 Автокликер (+${autoUpgradeLevel} в сек.) <span id="auto-cost">${upgradeAutoCost}</span> очков`;
+    }
     if (cCost) cCost.textContent = upgradeClickCost;
-    if (aCost) aCost.textContent = upgradeAutoCost;
     
     if (upCBtn) upCBtn.classList.toggle('disabled', score < upgradeClickCost);
     if (upABtn) upABtn.classList.toggle('disabled', score < upgradeAutoCost);
@@ -102,14 +107,21 @@ if (upCBtn) {
 
 if (upABtn) {
     upABtn.onclick = function() {
-        if (score >= upgradeAutoCost) { score -= upgradeAutoCost; autoClicksPerSecond += 1; upgradeAutoCost = Math.round(upgradeAutoCost * 1.5); updateUI(); saveGame(); }
+        if (score >= upgradeAutoCost) { 
+            score -= upgradeAutoCost; 
+            autoClicksPerSecond += autoUpgradeLevel; // Добавляем текущий растущий бонус
+            autoUpgradeLevel += 1;                  // Увеличиваем силу следующей покупки (+1 превращается в +2 и т.д.)
+            upgradeAutoCost = Math.round(upgradeAutoCost * 1.6); // Цена растет чуть быстрее
+            updateUI(); 
+            saveGame(); 
+        }
     };
 }
 
 if (rBtn) {
     rBtn.onclick = function() {
         if (rebirthLevel < 10 && score >= rebirthCosts[rebirthLevel]) {
-            rebirthLevel++; scoreMultiplier += 0.25; score = 0; clickPower = 1; clickUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50;
+            rebirthLevel++; scoreMultiplier += 0.25; score = 0; clickPower = 1; clickUpgradeLevel = 1; autoUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50;
             alert(`Перерождение совершенно! Множитель: х${scoreMultiplier.toFixed(2)}`); updateUI(); saveGame();
         }
     };
@@ -120,7 +132,7 @@ if (achTgl && achPnl) achTgl.onclick = function() { achPnl.classList.toggle('ope
 if (rstBtn) {
     rstBtn.onclick = function() {
         if (confirm("Вы уверены, что хотите полностью стереть игру?")) {
-            localStorage.clear(); score = 0; clickPower = 1; clickUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50; rebirthLevel = 0; scoreMultiplier = 1.0;
+            localStorage.clear(); score = 0; clickPower = 1; clickUpgradeLevel = 1; autoUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50; rebirthLevel = 0; scoreMultiplier = 1.0;
             achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false }; updateUI(true);
         }
     };
@@ -134,17 +146,16 @@ if (mMute) {
     };
 }
 
-// СИСТЕМА ЧИТ-КОДА
 let inputBuffer = "";
 window.addEventListener('keydown', (e) => {
     inputBuffer += e.key.toLowerCase();
-    inputBuffer = inputBuffer.slice(-10); // Храним только последние нажатые символы
+    inputBuffer = inputBuffer.slice(-10);
     if (inputBuffer.includes("cheat")) {
         score += 500000;
         showToast("Чит-код активирован: +500,000 очков!");
         updateUI();
         saveGame();
-        inputBuffer = ""; // Очищаем буфер после ввода
+        inputBuffer = "";
     }
 });
 
