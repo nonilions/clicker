@@ -10,18 +10,18 @@ let clickUpgradeLevel = 1;
 let rebirthLevel = 0;
 let scoreMultiplier = 1.0;
 
-// ТОЧНЫЙ СПИСОК СТОИМОСТЕЙ ПЕРЕРОЖДЕНИЙ ПО ВАШЕМУ ЗАПРОСУ
+// Список стоимостей перерождений
 const rebirthCosts = [
-    100000,   // 1-ое перерождение
-    500000,   // 2-ое
-    1000000,  // 3-е
-    2000000,  // 4-е
-    3500000,  // 5-е
-    5000000,  // 6-е
-    7500000,  // 7-е
-    10000000, // 8-е
-    15000000, // 9-е
-    25000000  // 10-е
+    100000,   // 1
+    500000,   // 2
+    1000000,  // 3
+    2000000,  // 4
+    3500000,  // 5
+    5000000,  // 6
+    7500000,  // 7
+    10000000, // 8
+    15000000, // 9
+    25000000  // 10
 ];
 
 // Структура ачивок
@@ -45,18 +45,15 @@ const rebirthCostEl = document.getElementById('rebirth-cost');
 const resetBtn = document.getElementById('reset-btn');
 const gameContainer = document.getElementById('game-container');
 
-// Элементы текста внутри кнопок апгрейда
 const clickTextEl = document.getElementById('click-text');
 const clickCostEl = document.getElementById('click-cost');
 const autoCostEl = document.getElementById('auto-cost');
 
-// Элементы ачивок
 const achievementsToggle = document.getElementById('achievements-toggle');
 const achievementsPanel = document.getElementById('achievements-panel');
 const toastNotification = document.getElementById('toast-notification');
 const toastText = document.getElementById('toast-text');
 
-// Элементы музыки
 const bgMusic = document.getElementById('bg-music');
 const musicToggle = document.getElementById('music-toggle');
 let musicStarted = false;
@@ -212,7 +209,6 @@ function createFloatingNumber(event) {
     setTimeout(() => { floatEl.remove(); }, 800);
 }
 
-// Главный клик
 if (clickBtn) {
     clickBtn.onclick = function(event) {
         score += clickPower * scoreMultiplier; 
@@ -226,7 +222,6 @@ if (clickBtn) {
     };
 }
 
-// Покупка клика
 if (upgradeClickBtn) {
     upgradeClickBtn.addEventListener('click', () => {
         if (score >= upgradeClickCost) {
@@ -240,7 +235,6 @@ if (upgradeClickBtn) {
     });
 }
 
-// Покупка автокликера
 if (upgradeAutoBtn) {
     upgradeAutoBtn.addEventListener('click', () => {
         if (score >= upgradeAutoCost) {
@@ -253,6 +247,11 @@ if (upgradeAutoBtn) {
     });
 }
 
-// Перерождение
 if (rebirthBtn) {
     rebirthBtn.addEventListener('click', () => {
+        if (rebirthLevel >= 10) return;
+        let currentCost = rebirthCosts[rebirthLevel];
+        if (score >= currentCost) {
+            rebirthLevel += 1;
+            scoreMultiplier += 0.25;
+            score = 0;
