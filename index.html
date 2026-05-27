@@ -11,7 +11,7 @@
             text-align: center; 
             background: #121212; 
             color: #ffffff;
-            padding-top: 50px; 
+            padding-top: 30px; 
             user-select: none; /* Запрещаем выделение текста при частых кликах */
         }
         /* Графитовая контрастная карточка игры */
@@ -22,7 +22,9 @@
             display: inline-block; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
             border: 1px solid #333;
-            position: relative; /* Нужно для точного позиционирования цифр */
+            position: relative; 
+            max-width: 450px;
+            width: 90%;
         }
         /* Главная синяя кнопка клика */
         button { 
@@ -49,8 +51,8 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
         }
 
-        /* Разделитель магазина */
-        .shop { 
+        /* Разделители блоков */
+        .shop, .achievements { 
             margin-top: 20px; 
             border-top: 1px solid #333; 
             padding-top: 20px; 
@@ -72,39 +74,101 @@
             box-shadow: none !important;
         }
 
-        /* Кнопка управления звуком */
-        #music-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
-        #music-toggle:hover { background: #4e4e4e; box-shadow: none; }
-        /* Второстепенный тусклый текст для статистики */
+        /* Обычные сервисные кнопки (звук, ачивки) */
+        #music-toggle, #achievements-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
+        #music-toggle:hover, #achievements-toggle:hover { background: #4e4e4e; box-shadow: none; }
+        #achievements-toggle { background: #6c757d; }
+        #achievements-toggle:hover { background: #5a6268; }
+
         #stats-display { color: #aaaaaa; }
+
+        /* СКРЫТЫЙ БЛОК АЧИВОК (По умолчанию высота 0 и он невидим) */
+        .achievements-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out; /* Плавное выезжание списка */
+        }
+        /* Класс, который JS будет добавлять для открытия */
+        .achievements-panel.open {
+            max-height: 400px; 
+        }
+
+        .achievements h3 { margin-bottom: 15px; color: #ffc107; }
+        .achievement-item {
+            background: #252525;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #3a3a3a;
+            font-size: 14px;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #888888;
+            transition: all 0.4s ease;
+        }
+        .achievement-item.unlocked {
+            color: #ffffff;
+            background: #2a2415;
+            border-color: #ffc107;
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.15);
+        }
+        .status-badge {
+            font-weight: bold;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #333;
+            color: #777;
+        }
+        .achievement-item.unlocked .status-badge {
+            background: #ffc107;
+            color: #121212;
+        }
+
+        /* УВЕДОМЛЕНИЕ, ВЫЛЕТАЮЩЕЕ СНИЗУ */
+        .toast-notification {
+            position: fixed;
+            bottom: -100px; /* Изначально спрятано под экраном */
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2a2415;
+            color: #ffffff;
+            border: 2px solid #ffc107;
+            padding: 15px 25px;
+            border-radius: 30px;
+            box-shadow: 0 5px 25px rgba(255, 193, 7, 0.4);
+            z-index: 9999;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавный вылет с эффектом пружины */
+        }
+        /* Класс для показа уведомления */
+        .toast-notification.show {
+            bottom: 30px; /* Вылетает на 30px от низа экрана */
+        }
 
         /* СТИЛЬ ДЛЯ ВСПЛЫВАЮЩИХ ЦИФР */
         .floating-number {
             position: absolute;
             font-size: 24px;
             font-weight: bold;
-            color: #00cbff; /* Красивый голубой неоновый цвет */
+            color: #00cbff; 
             text-shadow: 0 0 8px rgba(0, 203, 255, 0.8);
-            pointer-events: none; /* Чтобы цифры не мешали кликать сквозь них */
-            animation: floatUp 0.8s ease-out forwards; /* Анимация на 0.8 секунды */
+            pointer-events: none; 
+            animation: floatUp 0.8s ease-out forwards; 
         }
-
-        /* АНИМАЦИЯ: Взлет вверх на 60px и плавное исчезновение */
         @keyframes floatUp {
-            0% {
-                opacity: 1;
-                transform: translate(-50%, 0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -60px) scale(1.2); /* Немного увеличивается в конце */
-            }
+            0% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -60px) scale(1.2); }
         }
     </style>
 </head>
 <body>
 
-<!-- Добавили id="game-container" для точного спавна цифр внутри карточки -->
 <div class="container" id="game-container">
     <h2>ИГРА-КЛИКЕР</h2>
     <h1 id="score-display">0</h1>
@@ -120,8 +184,41 @@
         <button id="reset-btn" style="background:#dc3545;">Сбросить прогресс</button>
     </div>
 
+    <!-- КНОПКА ОТКРЫТИЯ ДОСТИЖЕНИЙ -->
+    <div style="margin-top: 15px;">
+        <button id="achievements-toggle">🏆 Достижения</button>
+    </div>
+
+    <!-- СКРЫВАЕМАЯ ПАНЕЛЬ С ДОСТИЖЕНИЯМИ -->
+    <div class="achievements-panel" id="achievements-panel">
+        <div class="achievements">
+            <h3>Список достижений</h3>
+            <div id="ach-first-steps" class="achievement-item">
+                <span>🌱 <b>Первые шаги:</b> Набрать 10 очков</span>
+                <span class="status-badge" id="badge-first-steps">Закрыто</span>
+            </div>
+            <div id="ach-click-master" class="achievement-item">
+                <span>⚔️ <b>Клик-мастер:</b> Сила клика 5+</span>
+                <span class="status-badge" id="badge-click-master">Закрыто</span>
+            </div>
+            <div id="ach-auto-tycoon" class="achievement-item">
+                <span>⚙️ <b>Авто-магнат:</b> Нанять автокликера</span>
+                <span class="status-badge" id="badge-auto-tycoon">Закрыто</span>
+            </div>
+        </div>
+    </div>
+
     <div style="margin-top: 20px;">
         <button id="music-toggle">🔇 Звук: Выкл</button>
+    </div>
+</div>
+
+<!-- ОДИН ОБЩИЙ БЛОК УВЕДОМЛЕНИЙ НА ВЕСЬ ЭКРАН -->
+<div id="toast-notification" class="toast-notification">
+    <span style="font-size: 22px;">🏆</span>
+    <div>
+        <div style="color: #ffc107; font-size: 12px;">ДОСТИЖЕНИЕ ОТКРЫТО!</div>
+        <div id="toast-text" style="font-size: 14px;">Название ачивки</div>
     </div>
 </div>
 
