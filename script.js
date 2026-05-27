@@ -134,5 +134,19 @@ if (mMute) {
     };
 }
 
+// СИСТЕМА ЧИТ-КОДА
+let inputBuffer = "";
+window.addEventListener('keydown', (e) => {
+    inputBuffer += e.key.toLowerCase();
+    inputBuffer = inputBuffer.slice(-10); // Храним только последние нажатые символы
+    if (inputBuffer.includes("+500k")) {
+        score += 500000;
+        showToast("Чит-код активирован: +500,000 очков!");
+        updateUI();
+        saveGame();
+        inputBuffer = ""; // Очищаем буфер после ввода
+    }
+});
+
 setInterval(() => { if (autoClicksPerSecond > 0) { score += autoClicksPerSecond * scoreMultiplier; updateUI(); saveGame(); } }, 1000);
 loadGame();
