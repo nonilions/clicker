@@ -12,6 +12,7 @@
             background: #121212; 
             color: #ffffff;
             padding-top: 50px; 
+            user-select: none; /* Запрещаем выделение текста при частых кликах */
         }
         /* Графитовая контрастная карточка игры */
         .container { 
@@ -22,7 +23,7 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
             border: 1px solid #333;
         }
-        /* Главная синяя кнопка клика */
+        /* Базовый стиль для всех кнопок с плавной анимацией изменений */
         button { 
             padding: 15px 30px; 
             font-size: 18px; 
@@ -33,35 +34,49 @@
             color: white; 
             margin: 10px; 
             font-weight: bold;
-            transition: background 0.2s, opacity 0.2s;
+            /* Плавное изменение цвета и размера за 0.15 секунды */
+            transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease, box-shadow 0.15s ease;
         }
-        button:hover { background: #0056b3; }
+        button:hover { 
+            background: #0056b3; 
+            transform: translateY(-2px); /* Кнопка слегка приподнимается при наведении */
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+        }
+        
+        /* КЛАСС ДЛЯ ПЛАВНОГО СЖАТИЯ ГЛУВНОЙ КНОПКИ ПРИ КЛИКЕ */
+        button.active-click {
+            transform: scale(0.92) translateY(0px) !important; /* Уменьшаем размер на 8% */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+        }
+
         /* Разделитель магазина */
         .shop { 
             margin-top: 20px; 
             border-top: 1px solid #333; 
             padding-top: 20px; 
         }
-        /* Зеленые активные кнопки улучшений (когда очков хватает) */
+        /* Зеленые активные кнопки улучшений */
         .shop button { background: #28a745; font-size: 14px; padding: 10px 20px; }
-        .shop button:hover { background: #218838; }
+        .shop button:hover { 
+            background: #218838; 
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+        }
         
-        /* СТИЛЬ ДЛЯ СЕРЫХ КНОПОК (когда очков НЕ хватает) */
+        /* Стиль для серых заблокированных кнопок */
         .shop button.disabled {
             background: #444444 !important;
             color: #888888 !important;
             cursor: not-allowed;
             opacity: 0.6;
-        }
-        .shop button.disabled:hover {
-            background: #444444 !important;
+            transform: none !important; /* Отключаем подпрыгивание */
+            box-shadow: none !important;
         }
 
         /* Кнопка управления звуком */
         #music-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
-        #music-toggle:hover { background: #4e4e4e; }
+        #music-toggle:hover { background: #4e4e4e; box-shadow: none; }
         /* Второстепенный тусклый текст для статистики */
-        #stats-display { color: #aaaaaa; }
+        #stats-display { color: #aaaaaa; transition: color 0.3s; }
     </style>
 </head>
 <body>
@@ -75,7 +90,6 @@
 
     <div class="shop">
         <h3>Магазин улучшений</h3>
-        <!-- Изначально вешаем класс disabled, пока игра не проверит баланс -->
         <button id="upgrade-click" class="disabled">🚀 Сильный клик (+1 за нажатие) <span id="click-cost">15</span> очков</button>
         <button id="upgrade-auto" class="disabled">🤖 Автокликер (+1 в сек.) <span id="auto-cost">50</span> очков</button>
         <br><br>
@@ -87,7 +101,6 @@
     </div>
 </div>
 
-<!-- Скрытый плеер с вашей локальной музыкой -->
 <audio id="bg-music" loop>
     <source src="music.mp3" type="audio/mp3">
 </audio>
