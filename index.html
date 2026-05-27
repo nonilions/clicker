@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мега Кликер с Автосохранением</title>
+    <style>
+        /* Основные стили страницы */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #1e1e24;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Главный контейнер игры */
+        .game-container {
+            background: #2a2a35;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+
+        h2 { margin-top: 0; color: #3498db; }
+
+        /* Стили табло со счетом */
+        #counter {
+            font-size: 64px;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+
+        .stat-text {
+            font-size: 14px;
+            color: #bdc3c7;
+            margin-bottom: 25px;
+        }
+
+        /* Главная кнопка для кликов */
+        #main-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 20px 0;
+            width: 100%;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+            transition: transform 0.05s, background-color 0.2s;
+            margin-bottom: 35px;
+            outline: none;
+        }
+        #main-btn:hover { background-color: #2980b9; }
+        #main-btn:active { transform: scale(0.96); }
+
+        /* Раздел магазина улучшений */
+        .shop-title {
+            font-size: 18px;
+            border-top: 2px solid #3d3d4f;
+            padding-top: 20px;
+            margin-bottom: 15px;
+            color: #e74c3c;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Кнопки апгрейдов */
+        .upgrade-btn {
+            background-color: #34495e;
+            color: white;
+            border: 1px solid #4f6f8f;
+            padding: 12px 20px;
+            font-size: 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+        .upgrade-btn:hover:not(:disabled) { background-color: #415b76; }
+        
+        /* Стиль для заблокированных кнопок */
+        .upgrade-btn:disabled {
+            background-color: #1a1a21;
+            border-color: #2d2d3a;
+            color: #7f8c8d;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .upgrade-cost {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        /* Кнопка сброса */
+        #reset-btn {
+            background: none;
+            border: none;
+            color: #7f8c8d;
+            cursor: pointer;
+            text-decoration: underline;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        #reset-btn:hover { color: #e74c3c; }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h2>ИГРА-КЛИКЕР</h2>
+        <div id="counter">0</div>
+        <div class="stat-text">
+            Сила клика: <span id="click-power-stat">1</span> | 
+            В секунду: <span id="cps-stat">0</span>
+        </div>
+        
+        <button id="main-btn">КЛИКАТЬ ТУТ!</button>
+
+        <div class="shop-title">Магазин улучшений</div>
+        
+        <button id="upg-click" class="upgrade-btn" disabled>
+            <span>🚀 Сильный клик (+1 за нажатие)</span>
+            <span class="upgrade-cost" id="upg-click-cost">15 очков</span>
+        </button>
+
+        <button id="upg-auto" class="upgrade-btn" disabled>
+            <span>🤖 Автокликер (+1 в сек.)</span>
+            <span class="upgrade-cost" id="upg-auto-cost">50 очков</span>
+        </button>
+
+        <button id="reset-btn">Сбросить прогресс</button>
+    </div>
+
+    <script>
+        // Инициализация базовых переменных игры
+        let score = 0;
+        let clickPower = 1;
+        let autoClicks = 0;
+        let upgClickCost = 15;
+        let upgAutoCost = 50;
+
+        // Элементы страницы
+        const counterEl = document.getElementById('counter');
+        const mainBtn = document.getElementById('main-btn');
+        const upgClickBtn = document.getElementById('upg-click');
+        const upgAutoBtn = document.getElementById('upg-auto');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        const clickPowerStat = document.getElementById('click-power-stat');
+        const cpsStat = document.getElementById('cps-stat');
+        const upgClickCostEl = document.getElementById('upg-click-cost');
+        const upgAutoCostEl = document.getElementById('upg-auto-cost');
+
+        // ФУНКЦИЯ ЗАГРУЗКИ СОХРАНЕНИЯ
+        function loadGame() {
+            if (localStorage.getItem('clicker_score') !== null) {
+                score = parseFloat(localStorage.getItem('clicker_score'));
+                clickPower = parseInt(localStorage.getItem('clicker_power'));
+                autoClicks = parseInt(localStorage.getItem('clicker_autoclicks'));
+                upgClickCost = parseInt(localStorage.getItem('clicker_upgclickcost'));
+                upgAutoCost = parseInt(localStorage.getItem('clicker_upgautocost'));
+            }
+        }
+
+        // ФУНКЦИЯ СОХРАНЕНИЯ ПРОГРЕССА
+        function saveGame() {
+            localStorage.setItem('clicker_score', score);
+            localStorage.setItem('clicker_power', clickPower);
+            localStorage.setItem('clicker_autoclicks', autoClicks);
+            localStorage.setItem('clicker_upgclickcost', upgClickCost);
+            localStorage.setItem('clicker_upgautocost', upgAutoCost);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            counterEl.innerText = Math.floor(score);
+            clickPowerStat.innerText = clickPower;
+            cpsStat.innerText = autoClicks;
+            
+            upgClickCostEl.innerText = upgClickCost + " очков";
+            upgAutoCostEl.innerText = upgAutoCost + " очков";
+
+            upgClickBtn.disabled = score < upgClickCost;
+            upgAutoBtn.disabled = score < upgAutoCost;
+        }
+
+        // Главный клик
+        mainBtn.addEventListener('click', () => {
+            score += clickPower;
+            updateUI();
+        });
+
+        // Покупка "+1 к клику"
+        upgClickBtn.addEventListener('click', () => {
+            if (score >= upgClickCost) {
+                score -= upgClickCost;
+                clickPower += 1;
+                upgClickCost = Math.round(upgClickCost * 1.5);
+                updateUI();
+                saveGame();
+            }
+        });
+
+        // Покупка Автокликера
+        upgAutoBtn.addEventListener('click', () => {
+            if (score >= upgAutoCost) {
+                score -= upgAutoCost;
+                autoClicks += 1;
+                upgAutoCost = Math.round(upgAutoCost * 1.6);
+                updateUI();
+                saveGame();
+            }
+        });
+
+        // Сброс игры
+        resetBtn.addEventListener('click', () => {
+            if (confirm("Вы уверены, что хотите обнулить весь прогресс?")) {
+                localStorage.clear();
+                score = 0;
+                clickPower = 1;
+                autoClicks = 0;
+                upgClickCost = 15;
+                upgAutoCost = 50;
+                updateUI();
+            }
+        });
+
+        // Работа автоматического дохода
+        setInterval(() => {
+            if (autoClicks > 0) {
+                score += autoClicks / 10;
+                updateUI();
+            }
+        }, 100);
+
+        // Автосохранение игры каждую секунду
+        setInterval(() => {
+            saveGame();
+        }, 1000);
+
+        // Запуск при старте: сначала загружаем сейв, потом обновляем экран
+        loadGame();
+        updateUI();
+    </script>
+
+</body>
+</html>
