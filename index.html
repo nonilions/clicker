@@ -112,7 +112,7 @@
         .rebirth-section h3 { color: #bb86fc; }
 
         .achievement-item {
-            background: #252525; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #3a3a3a;
+            background: #252525; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #333;
             font-size: 14px; text-align: left; display: flex; justify-content: space-between; align-items: center; color: #888888;
         }
         .achievement-item.unlocked { color: #ffffff; background: #2a2415; border-color: #ffc107; }
@@ -146,12 +146,10 @@
     <h2>ИГРА-КЛИКЕР</h2>
     <h1 id="score-display">0</h1>
     <p id="stats-display">Сила клика: 1 | В секунду: 0</p>
-    <!-- Новый элемент для показа текущего бонуса -->
     <p id="multiplier-display">Множитель перерождения: x1.00 (Уровень 0)</p>
     
     <button id="click-btn">КЛИКАТЬ ТУТ!</button>
 
-    <!-- НОВЫЙ БЛОК ПЕРЕРОЖДЕНИЙ -->
     <div class="rebirth-section">
         <h3>Перерождение</h3>
         <p style="font-size: 13px; color: #aaa; margin: 0 0 10px 0;">Сбросит ваши очки и улучшения ради постоянного бонуса к кликам и автоклику!</p>
@@ -160,8 +158,14 @@
 
     <div class="shop">
         <h3>Магазин улучшений</h3>
-        <button id="upgrade-click" class="disabled">🚀 Сильный клик (+1 за нажатие) <span id="click-cost">15</span> очков</button>
-        <button id="upgrade-auto" class="disabled">🤖 Автокликер (+1 в сек.) <span id="auto-cost">50</span> очков</button>
+        <!-- Изменили внутренний текст, разделив описание и цену по разным ID -->
+        <button id="upgrade-click" class="disabled">
+            <span id="click-text">🚀 Сильный клик (+1 за нажатие)</span> 
+            <span id="click-cost">15</span> очков
+        </button>
+        <button id="upgrade-auto" class="disabled">
+            🤖 Автокликер (+1 в сек.) <span id="auto-cost">50</span> очков
+        </button>
         <br><br>
         <button id="reset-btn" style="background:#dc3545;">Сбросить прогресс</button>
     </div>
