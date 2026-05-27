@@ -82,15 +82,14 @@
 
         #stats-display { color: #aaaaaa; }
 
-        /* СКРЫТЫЙ БЛОК АЧИВОК (По умолчанию высота 0 и он невидим) */
+        /* СКРЫТЫЙ БЛОК АЧИВОК */
         .achievements-panel {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.4s ease-out; /* Плавное выезжание списка */
+            transition: max-height 0.4s ease-out; 
         }
-        /* Класс, который JS будет добавлять для открытия */
         .achievements-panel.open {
-            max-height: 400px; 
+            max-height: 500px; /* Немного увеличили высоту, так как ачивок стало больше */
         }
 
         .achievements h3 { margin-bottom: 15px; color: #ffc107; }
@@ -130,7 +129,7 @@
         /* УВЕДОМЛЕНИЕ, ВЫЛЕТАЮЩЕЕ СНИЗУ */
         .toast-notification {
             position: fixed;
-            bottom: -100px; /* Изначально спрятано под экраном */
+            bottom: -100px; 
             left: 50%;
             transform: translateX(-50%);
             background: #2a2415;
@@ -144,11 +143,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавный вылет с эффектом пружины */
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
-        /* Класс для показа уведомления */
         .toast-notification.show {
-            bottom: 30px; /* Вылетает на 30px от низа экрана */
+            bottom: 30px; 
         }
 
         /* СТИЛЬ ДЛЯ ВСПЛЫВАЮЩИХ ЦИФР */
@@ -184,12 +182,11 @@
         <button id="reset-btn" style="background:#dc3545;">Сбросить прогресс</button>
     </div>
 
-    <!-- КНОПКА ОТКРЫТИЯ ДОСТИЖЕНИЙ -->
     <div style="margin-top: 15px;">
         <button id="achievements-toggle">🏆 Достижения</button>
     </div>
 
-    <!-- СКРЫВАЕМАЯ ПАНЕЛЬ С ДОСТИЖЕНИЯМИ -->
+    <!-- ОБНОВЛЕННАЯ ПАНЕЛЬ С НОВЫМИ АЧИВКАМИ -->
     <div class="achievements-panel" id="achievements-panel">
         <div class="achievements">
             <h3>Список достижений</h3>
@@ -205,6 +202,16 @@
                 <span>⚙️ <b>Авто-магнат:</b> Нанять автокликера</span>
                 <span class="status-badge" id="badge-auto-tycoon">Закрыто</span>
             </div>
+            <!-- Секретная ачивка 1 -->
+            <div id="ach-lucky-seven" class="achievement-item">
+                <span>🎰 <b>Счастливая 7-ка:</b> Иметь ровно 777 очков</span>
+                <span class="status-badge" id="badge-lucky-seven">Закрыто</span>
+            </div>
+            <!-- Секретная ачивка 2 -->
+            <div id="ach-millionaire" class="achievement-item">
+                <span>💎 <b>Кликер-Миллионер:</b> Набрать 1,000,000 очков</span>
+                <span class="status-badge" id="badge-millionaire">Закрыто</span>
+            </div>
         </div>
     </div>
 
@@ -213,7 +220,6 @@
     </div>
 </div>
 
-<!-- ОДИН ОБЩИЙ БЛОК УВЕДОМЛЕНИЙ НА ВЕСЬ ЭКРАН -->
 <div id="toast-notification" class="toast-notification">
     <span style="font-size: 22px;">🏆</span>
     <div>
@@ -227,6 +233,5 @@
 </audio>
 
 <script src="script.js"></script>
-    
 </body>
 </html>
