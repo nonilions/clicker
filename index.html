@@ -22,8 +22,9 @@
             display: inline-block; 
             box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
             border: 1px solid #333;
+            position: relative; /* Нужно для точного позиционирования цифр */
         }
-        /* Базовый стиль для всех кнопок с плавной анимацией изменений */
+        /* Главная синяя кнопка клика */
         button { 
             padding: 15px 30px; 
             font-size: 18px; 
@@ -34,18 +35,17 @@
             color: white; 
             margin: 10px; 
             font-weight: bold;
-            /* Плавное изменение цвета и размера за 0.15 секунды */
             transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease, box-shadow 0.15s ease;
         }
         button:hover { 
             background: #0056b3; 
-            transform: translateY(-2px); /* Кнопка слегка приподнимается при наведении */
+            transform: translateY(-2px); 
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
         
-        /* КЛАСС ДЛЯ ПЛАВНОГО СЖАТИЯ ГЛУВНОЙ КНОПКИ ПРИ КЛИКЕ */
+        /* Класс для плавного сжатия при клике */
         button.active-click {
-            transform: scale(0.92) translateY(0px) !important; /* Уменьшаем размер на 8% */
+            transform: scale(0.92) translateY(0px) !important;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
         }
 
@@ -68,7 +68,7 @@
             color: #888888 !important;
             cursor: not-allowed;
             opacity: 0.6;
-            transform: none !important; /* Отключаем подпрыгивание */
+            transform: none !important;
             box-shadow: none !important;
         }
 
@@ -76,12 +76,36 @@
         #music-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
         #music-toggle:hover { background: #4e4e4e; box-shadow: none; }
         /* Второстепенный тусклый текст для статистики */
-        #stats-display { color: #aaaaaa; transition: color 0.3s; }
+        #stats-display { color: #aaaaaa; }
+
+        /* СТИЛЬ ДЛЯ ВСПЛЫВАЮЩИХ ЦИФР */
+        .floating-number {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            color: #00cbff; /* Красивый голубой неоновый цвет */
+            text-shadow: 0 0 8px rgba(0, 203, 255, 0.8);
+            pointer-events: none; /* Чтобы цифры не мешали кликать сквозь них */
+            animation: floatUp 0.8s ease-out forwards; /* Анимация на 0.8 секунды */
+        }
+
+        /* АНИМАЦИЯ: Взлет вверх на 60px и плавное исчезновение */
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, 0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -60px) scale(1.2); /* Немного увеличивается в конце */
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- Добавили id="game-container" для точного спавна цифр внутри карточки -->
+<div class="container" id="game-container">
     <h2>ИГРА-КЛИКЕР</h2>
     <h1 id="score-display">0</h1>
     <p id="stats-display">Сила клика: 1 | В секунду: 0</p>
