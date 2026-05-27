@@ -139,7 +139,7 @@ let inputBuffer = "";
 window.addEventListener('keydown', (e) => {
     inputBuffer += e.key.toLowerCase();
     inputBuffer = inputBuffer.slice(-10); // Храним только последние нажатые символы
-    if (inputBuffer.includes("+500k")) {
+    if (inputBuffer.includes("cheat")) {
         score += 500000;
         showToast("Чит-код активирован: +500,000 очков!");
         updateUI();
