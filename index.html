@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мега Кликер с Автосохранением</title>
     <style>
-        /* Темный фон для всей страницы */
         body { 
             font-family: sans-serif; 
             text-align: center; 
@@ -14,7 +13,6 @@
             padding-top: 20px; 
             user-select: none; 
         }
-        /* Графитовая контрастная карточка игры */
         .container { 
             background: #1e1e1e; 
             padding: 30px; 
@@ -26,7 +24,6 @@
             max-width: 450px;
             width: 90%;
         }
-        /* Главная синяя кнопка клика */
         button { 
             padding: 15px 30px; 
             font-size: 18px; 
@@ -44,26 +41,20 @@
             transform: translateY(-2px); 
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
         }
-        
         button.active-click {
             transform: scale(0.92) translateY(0px) !important;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
         }
-
-        /* Разделители блоков */
         .shop, .achievements, .rebirth-section { 
             margin-top: 20px; 
             border-top: 1px solid #333; 
             padding-top: 20px; 
         }
-        /* Зеленые активные кнопки улучшений */
         .shop button { background: #28a745; font-size: 14px; padding: 10px 20px; }
         .shop button:hover { 
             background: #218838; 
             box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
         }
-
-        /* Фиолетовая неоновая кнопка перерождения */
         #rebirth-btn {
             background: #6f42c1;
             box-shadow: 0 0 10px rgba(111, 66, 193, 0.3);
@@ -72,24 +63,14 @@
             background: #59339d;
             box-shadow: 0 0 15px rgba(111, 66, 193, 0.6);
         }
-        #rebirth-btn.disabled {
+        #rebirth-btn.disabled, .shop button.disabled {
             background: #444444 !important;
             color: #888888 !important;
             cursor: not-allowed;
             transform: none !important;
             box-shadow: none !important;
-        }
-        
-        /* Серые заблокированные кнопки */
-        .shop button.disabled {
-            background: #444444 !important;
-            color: #888888 !important;
-            cursor: not-allowed;
             opacity: 0.6;
-            transform: none !important;
-            box-shadow: none !important;
         }
-
         #music-toggle, #achievements-toggle { background: #3a3a3a; font-size: 14px; padding: 8px 15px; border: 1px solid #555; }
         #music-toggle:hover, #achievements-toggle:hover { background: #4e4e4e; box-shadow: none; }
         #achievements-toggle { background: #6c757d; }
@@ -98,7 +79,6 @@
         #stats-display, #multiplier-display { color: #aaaaaa; font-size: 14px; margin: 5px 0; }
         #multiplier-display { color: #bb86fc; font-weight: bold; }
 
-        /* ПАНЕЛЬ АЧИВОК */
         .achievements-panel {
             max-height: 0;
             overflow: hidden;
@@ -107,7 +87,6 @@
         .achievements-panel.open {
             max-height: 500px; 
         }
-
         .achievements h3, .rebirth-section h3 { margin-bottom: 10px; color: #ffc107; }
         .rebirth-section h3 { color: #bb86fc; }
 
@@ -119,7 +98,6 @@
         .status-badge { font-weight: bold; font-size: 12px; padding: 3px 8px; border-radius: 4px; background: #333; color: #777; }
         .achievement-item.unlocked .status-badge { background: #ffc107; color: #121212; }
 
-        /* УВЕДОМЛЕНИЕ */
         .toast-notification {
             position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: #2a2415; color: #ffffff;
             border: 2px solid #ffc107; padding: 15px 25px; border-radius: 30px; box-shadow: 0 5px 25px rgba(255, 193, 7, 0.4);
@@ -128,7 +106,6 @@
         }
         .toast-notification.show { bottom: 30px; }
 
-        /* ВСПЛЫВАЮЩИЕ ЦИФРЫ */
         .floating-number {
             position: absolute; font-size: 24px; font-weight: bold; color: #00cbff; 
             text-shadow: 0 0 8px rgba(0, 203, 255, 0.8); pointer-events: none; 
@@ -158,7 +135,6 @@
 
     <div class="shop">
         <h3>Магазин улучшений</h3>
-        <!-- Изменили внутренний текст, разделив описание и цену по разным ID -->
         <button id="upgrade-click" class="disabled">
             <span id="click-text">🚀 Сильный клик (+1 за нажатие)</span> 
             <span id="click-cost">15</span> очков
