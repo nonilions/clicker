@@ -45,6 +45,27 @@ function saveGame() {
     localStorage.setItem('clicker_auto_cost', upgradeAutoCost);
 }
 
+// Проверка баланса и динамическое перекрашивание кнопок магазина
+function checkButtons() {
+    // Для первого улучшения (Сильный клик)
+    if (upgradeClickBtn) {
+        if (score >= upgradeClickCost) {
+            upgradeClickBtn.classList.remove('disabled'); // Делаем зеленой
+        } else {
+            upgradeClickBtn.classList.add('disabled');    // Делаем серой
+        }
+    }
+    
+    // Для второго улучшения (Автокликер)
+    if (upgradeAutoBtn) {
+        if (score >= upgradeAutoCost) {
+            upgradeAutoBtn.classList.remove('disabled');  // Делаем зеленой
+        } else {
+            upgradeAutoBtn.classList.add('disabled');     // Делаем серой
+        }
+    }
+}
+
 // Обновление интерфейса
 function updateUI() {
     if (scoreDisplay) scoreDisplay.textContent = score;
@@ -54,19 +75,18 @@ function updateUI() {
     const autoCostEl = document.getElementById('auto-cost');
     if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
     if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
+    
+    // Каждый раз при обновлении экрана проверяем доступность кнопок
+    checkButtons();
 }
 
-// Принудительный запуск локального аудио
+// Безопасный запуск музыки
 function startMusic() {
     if (!musicStarted && bgMusic) {
-        bgMusic.play()
-            .then(() => {
-                musicStarted = true;
-                if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл";
-            })
-            .catch(err => {
-                console.log("Воспроизведение ожидает клика пользователя...", err);
-            });
+        bgMusic.play().then(() => {
+            musicStarted = true;
+            if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл";
+        }).catch(err => console.log("Браузер заблокировал музыку до первого клика", err));
     }
 }
 
@@ -74,7 +94,7 @@ function startMusic() {
 if (clickBtn) {
     clickBtn.onclick = function() {
         score += clickPower;
-        startMusic(); // Метод гарантированно включает локальный файл music.mp3
+        startMusic();
         updateUI();
         saveGame();
     };
@@ -142,7 +162,7 @@ if (musicToggle) {
     });
 }
 
-// Автокликер (раз в секунду)
+// Автокликер раз в секунду
 setInterval(() => {
     if (autoClicksPerSecond > 0) {
         score += autoClicksPerSecond;
@@ -151,5 +171,4 @@ setInterval(() => {
     }
 }, 1000);
 
-// Старт игры
 loadGame();
