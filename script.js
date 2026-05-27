@@ -1,23 +1,17 @@
-let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1; 
-let rebirthLevel = 0, scoreMultiplier = 1.0;
-
-// ИСПРАВЛЕНО: Массив стоимостей перерождений по вашему точному списку
+let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1, rebirthLevel = 0, scoreMultiplier = 1.0, musicStarted = false;
 const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
+let achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
 
-let achievements = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
-
-const scoreDisplay = document.getElementById('score-display'), statsDisplay = document.getElementById('stats-display'), multiplierDisplay = document.getElementById('multiplier-display');
-const clickBtn = document.getElementById('click-btn'), upgradeClickBtn = document.getElementById('upgrade-click'), upgradeAutoBtn = document.getElementById('upgrade-auto');
-const rebirthBtn = document.getElementById('rebirth-btn'), rebirthCostEl = document.getElementById('rebirth-cost'), resetBtn = document.getElementById('reset-btn'), gameContainer = document.getElementById('game-container');
-const clickTextEl = document.getElementById('click-text'), clickCostEl = document.getElementById('click-cost'), autoCostEl = document.getElementById('auto-cost');
-const achievementsToggle = document.getElementById('achievements-toggle'), achievementsPanel = document.getElementById('achievements-panel'), toastNotification = document.getElementById('toast-notification'), toastText = document.getElementById('toast-text');
-const bgMusic = document.getElementById('bg-music'), musicToggle = document.getElementById('music-toggle');
-let musicStarted = false;
-if (bgMusic) bgMusic.volume = 0.15;
+const sDisp = document.getElementById('score-display'), stDisp = document.getElementById('stats-display'), mDisp = document.getElementById('multiplier-display');
+const cBtn = document.getElementById('click-btn'), upCBtn = document.getElementById('upgrade-click'), upABtn = document.getElementById('upgrade-auto');
+const rBtn = document.getElementById('rebirth-btn'), rCostEl = document.getElementById('rebirth-cost'), rstBtn = document.getElementById('reset-btn'), gCont = document.getElementById('game-container');
+const cTxt = document.getElementById('click-text'), cCost = document.getElementById('click-cost'), aCost = document.getElementById('auto-cost');
+const achTgl = document.getElementById('achievements-toggle'), achPnl = document.getElementById('achievements-panel'), toast = document.getElementById('toast-notification'), tTxt = document.getElementById('toast-text');
+const bgM = document.getElementById('bg-music'), mMute = document.getElementById('music-toggle');
+if (bgM) bgM.volume = 0.15;
 
 function loadGame() {
-    const savedScore = localStorage.getItem('clicker_score');
-    if (savedScore !== null) {
+    if (localStorage.getItem('clicker_score') !== null) {
         score = parseFloat(localStorage.getItem('clicker_score'));
         clickPower = parseInt(localStorage.getItem('clicker_power') || 1);
         autoClicksPerSecond = parseInt(localStorage.getItem('clicker_auto') || 0);
@@ -26,137 +20,119 @@ function loadGame() {
         clickUpgradeLevel = parseInt(localStorage.getItem('clicker_click_level') || 1);
         rebirthLevel = parseInt(localStorage.getItem('clicker_rebirth_level') || 0);
         scoreMultiplier = parseFloat(localStorage.getItem('clicker_multiplier') || 1.0);
-        achievements.firstSteps = localStorage.getItem('ach_firstSteps') === 'true';
-        achievements.clickMaster = localStorage.getItem('ach_clickMaster') === 'true';
-        achievements.autoTycoon = localStorage.getItem('ach_autoTycoon') === 'true';
-        achievements.luckySeven = localStorage.getItem('ach_luckySeven') === 'true';
-        achievements.millionaire = localStorage.getItem('ach_millionaire') === 'true';
+        achs.firstSteps = localStorage.getItem('ach_firstSteps') === 'true';
+        achs.clickMaster = localStorage.getItem('ach_clickMaster') === 'true';
+        achs.autoTycoon = localStorage.getItem('ach_autoTycoon') === 'true';
+        achs.luckySeven = localStorage.getItem('ach_luckySeven') === 'true';
+        achs.millionaire = localStorage.getItem('ach_millionaire') === 'true';
     }
-    updateUI();
+    updateUI(true);
 }
 
 function saveGame() {
-    localStorage.setItem('clicker_score', score);
-    localStorage.setItem('clicker_power', clickPower);
-    localStorage.setItem('clicker_auto', autoClicksPerSecond);
-    localStorage.setItem('clicker_click_cost', upgradeClickCost);
-    localStorage.setItem('clicker_auto_cost', upgradeAutoCost);
-    localStorage.setItem('clicker_click_level', clickUpgradeLevel);
-    localStorage.setItem('clicker_rebirth_level', rebirthLevel);
-    localStorage.setItem('clicker_multiplier', scoreMultiplier);
-    localStorage.setItem('ach_firstSteps', achievements.firstSteps);
-    localStorage.setItem('ach_clickMaster', achievements.clickMaster);
-    localStorage.setItem('ach_autoTycoon', achievements.autoTycoon);
-    localStorage.setItem('ach_luckySeven', achievements.luckySeven);
-    localStorage.setItem('ach_millionaire', achievements.millionaire);
+    localStorage.setItem('clicker_score', score); localStorage.setItem('clicker_power', clickPower);
+    localStorage.setItem('clicker_auto', autoClicksPerSecond); localStorage.setItem('clicker_click_cost', upgradeClickCost);
+    localStorage.setItem('clicker_auto_cost', upgradeAutoCost); localStorage.setItem('clicker_click_level', clickUpgradeLevel);
+    localStorage.setItem('clicker_rebirth_level', rebirthLevel); localStorage.setItem('clicker_multiplier', scoreMultiplier);
+    localStorage.setItem('ach_firstSteps', achs.firstSteps); localStorage.setItem('ach_clickMaster', achs.clickMaster);
+    localStorage.setItem('ach_autoTycoon', achs.autoTycoon); localStorage.setItem('ach_luckySeven', achs.luckySeven);
+    localStorage.setItem('ach_millionaire', achs.millionaire);
 }
 
 function showToast(title) {
-    if (!toastNotification || !toastText) return;
-    toastText.textContent = title;
-    toastNotification.classList.add('show');
-    setTimeout(() => { toastNotification.classList.remove('show'); }, 3000);
+    if (!toast || !tTxt) return;
+    tTxt.textContent = title; toast.classList.add('show');
+    setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
 
-function checkAchievements(isInitialLoad = false) {
-    if (!achievements.firstSteps && score >= 10) { achievements.firstSteps = true; if (!isInitialLoad) showToast("Первые шаги (10 очков!)"); }
-    if (!achievements.clickMaster && clickPower >= 5) { achievements.clickMaster = true; if (!isInitialLoad) showToast("Клик-мастер (Сила клика 5)"); }
-    if (!achievements.autoTycoon && autoClicksPerSecond >= 1) { achievements.autoTycoon = true; if (!isInitialLoad) showToast("Авто-магнат (Куплен автокликер)"); }
-    if (!achievements.luckySeven && Math.floor(score) === 777) { achievements.luckySeven = true; if (!isInitialLoad) showToast("Счастливая семерка (Ровно 777!)"); }
-    if (!achievements.millionaire && score >= 1000000) { achievements.millionaire = true; if (!isInitialLoad) showToast("Миллионер (1,000,000 очков!)"); }
-    updateAchievementUI('ach-first-steps', 'badge-first-steps', achievements.firstSteps);
-    updateAchievementUI('ach-click-master', 'badge-click-master', achievements.clickMaster);
-    updateAchievementUI('ach-auto-tycoon', 'badge-auto-tycoon', achievements.autoTycoon);
-    updateAchievementUI('ach-lucky-seven', 'badge-lucky-seven', achievements.luckySeven);
-    updateAchievementUI('ach-millionaire', 'badge-millionaire', achievements.millionaire);
+function checkAchs(init = false) {
+    if (!achs.firstSteps && score >= 10) { achs.firstSteps = true; if (!init) showToast("Первые шаги (10 очков!)"); }
+    if (!achs.clickMaster && clickPower >= 5) { achs.clickMaster = true; if (!init) showToast("Клик-мастер (Сила клика 5)"); }
+    if (!achs.autoTycoon && autoClicksPerSecond >= 1) { achs.autoTycoon = true; if (!init) showToast("Авто-магнат (Куплен автокликер)"); }
+    if (!achs.luckySeven && Math.floor(score) === 777) { achs.luckySeven = true; if (!init) showToast("Счастливая семерка (Ровно 777!)"); }
+    if (!achs.millionaire && score >= 1000000) { achs.millionaire = true; if (!init) showToast("Миллионер (1,000,000 очков!)"); }
+    upAch('ach-first-steps', 'badge-first-steps', achs.firstSteps);
+    upAch('ach-click-master', 'badge-click-master', achs.clickMaster);
+    upAch('ach-auto-tycoon', 'badge-auto-tycoon', achs.autoTycoon);
+    upAch('ach-lucky-seven', 'badge-lucky-seven', achs.luckySeven);
+    upAch('ach-millionaire', 'badge-millionaire', achs.millionaire);
 }
 
-function updateAchievementUI(rowId, badgeId, isUnlocked) {
-    const row = document.getElementById(rowId), badge = document.getElementById(badgeId);
-    if (row && badge && isUnlocked) { row.classList.add('unlocked'); badge.textContent = 'Открыто!'; }
-    else if (row && badge) { row.classList.remove('unlocked'); badge.textContent = 'Закрыто'; }
+function upAch(rId, bId, open) {
+    const r = document.getElementById(rId), b = document.getElementById(bId);
+    if (r && b) { r.classList.toggle('unlocked', open); b.textContent = open ? 'Открыто!' : 'Закрыто'; }
 }
 
-function checkButtons() {
-    if (upgradeClickBtn) { if (score >= upgradeClickCost) upgradeClickBtn.classList.remove('disabled'); else upgradeClickBtn.classList.add('disabled'); }
-    if (upgradeAutoBtn) { if (score >= upgradeAutoCost) upgradeAutoBtn.classList.remove('disabled'); else upgradeAutoBtn.classList.add('disabled'); }
-    if (rebirthBtn && rebirthCostEl) {
-        if (rebirthLevel >= 10) { rebirthBtn.classList.add('disabled'); rebirthCostEl.textContent = "МАКСИМУМ (Ур. 10)"; }
-        else {
-            let currentCost = rebirthCosts[rebirthLevel];
-            rebirthCostEl.textContent = currentCost.toLocaleString() + " ";
-            if (score >= currentCost) rebirthBtn.classList.remove('disabled'); else rebirthBtn.classList.add('disabled');
+function updateUI(init = false) {
+    if (sDisp) sDisp.textContent = Math.floor(score).toLocaleString();
+    if (stDisp) stDisp.textContent = `Сила клика: ${(clickPower * scoreMultiplier).toFixed(2)} | В секунду: ${(autoClicksPerSecond * scoreMultiplier).toFixed(2)}`;
+    if (mDisp) mDisp.textContent = `Множитель перерождения: x${scoreMultiplier.toFixed(2)} (Уровень ${rebirthLevel})`;
+    if (cTxt) cTxt.textContent = `🚀 Сильный клик (+${clickUpgradeLevel} за нажатие)`;
+    if (cCost) cCost.textContent = upgradeClickCost;
+    if (aCost) aCost.textContent = upgradeAutoCost;
+    
+    if (upCBtn) upCBtn.classList.toggle('disabled', score < upgradeClickCost);
+    if (upABtn) upABtn.classList.toggle('disabled', score < upgradeAutoCost);
+    if (rBtn && rCostEl) {
+        if (rebirthLevel >= 10) { rBtn.classList.add('disabled'); rCostEl.textContent = "МАКСИМУМ (Ур. 10)"; }
+        else { rCostEl.textContent = rebirthCosts[rebirthLevel].toLocaleString() + " "; rBtn.classList.toggle('disabled', score < rebirthCosts[rebirthLevel]); }
+    }
+    checkAchs(init);
+}
+
+if (cBtn) {
+    cBtn.onclick = function(e) {
+        score += clickPower * scoreMultiplier;
+        if (!musicStarted && bgM) { bgM.play().then(() => { musicStarted = true; if (mMute) mMute.textContent = "🔊 Звук: Вкл"; }).catch(err => console.log(err)); }
+        updateUI(); saveGame();
+        if (gCont) {
+            const f = document.createElement('div'); f.className = 'floating-number'; f.textContent = `+${(clickPower * scoreMultiplier).toFixed(1)}`;
+            const rect = gCont.getBoundingClientRect(); f.style.left = `${e.clientX - rect.left}px`; f.style.top = `${e.clientY - rect.top}px`;
+            gCont.appendChild(f); setTimeout(() => f.remove(), 800);
         }
-    }
-}
-
-function updateUI(isInitialLoad = false) {
-    if (scoreDisplay) scoreDisplay.textContent = Math.floor(score).toLocaleString();
-    let actualClickValue = (clickPower * scoreMultiplier).toFixed(2);
-    let actualAutoValue = (autoClicksPerSecond * scoreMultiplier).toFixed(2);
-    if (statsDisplay) statsDisplay.textContent = `Сила клика: ${actualClickValue} | В секунду: ${actualAutoValue}`;
-    if (multiplierDisplay) multiplierDisplay.textContent = `Множитель перерождения: x${scoreMultiplier.toFixed(2)} (Уровень ${rebirthLevel})`;
-    if (clickTextEl) clickTextEl.textContent = `🚀 Сильный клик (+${clickUpgradeLevel} за нажатие)`;
-    if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
-    if (autoCostEl) autoCostEl.textContent = upgradeAutoCost;
-    checkButtons();
-    checkAchievements(isInitialLoad); 
-}
-
-function startMusic() {
-    if (!musicStarted && bgMusic) {
-        bgMusic.play().then(() => { musicStarted = true; if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл"; }).catch(err => console.log(err));
-    }
-}
-
-function createFloatingNumber(event) {
-    if (!gameContainer) return;
-    const floatEl = document.createElement('div');
-    floatEl.className = 'floating-number';
-    floatEl.textContent = `+${(clickPower * scoreMultiplier).toFixed(1)}`;
-    const rect = gameContainer.getBoundingClientRect();
-    floatEl.style.left = `${event.clientX - rect.left}px`;
-    floatEl.style.top = `${event.clientY - rect.top}px`;
-    gameContainer.appendChild(floatEl);
-    setTimeout(() => { floatEl.remove(); }, 800);
-}
-
-if (clickBtn) {
-    clickBtn.onclick = function(event) {
-        score += clickPower * scoreMultiplier; startMusic(); updateUI(false); saveGame(); createFloatingNumber(event);
-        clickBtn.classList.add('active-click'); setTimeout(() => { clickBtn.classList.remove('active-click'); }, 80);
+        cBtn.classList.add('active-click'); setTimeout(() => cBtn.classList.remove('active-click'), 80);
     };
 }
 
-if (upgradeClickBtn) {
-    upgradeClickBtn.addEventListener('click', () => {
-        if (score >= upgradeClickCost) {
-            score -= upgradeClickCost; clickPower += clickUpgradeLevel; clickUpgradeLevel += 1; upgradeClickCost = Math.round(upgradeClickCost * 1.6); updateUI(false); saveGame();
+if (upCBtn) {
+    upCBtn.onclick = function() {
+        if (score >= upgradeClickCost) { score -= upgradeClickCost; clickPower += clickUpgradeLevel; clickUpgradeLevel += 1; upgradeClickCost = Math.round(upgradeClickCost * 1.6); updateUI(); saveGame(); }
+    };
+}
+
+if (upABtn) {
+    upABtn.onclick = function() {
+        if (score >= upgradeAutoCost) { score -= upgradeAutoCost; autoClicksPerSecond += 1; upgradeAutoCost = Math.round(upgradeAutoCost * 1.5); updateUI(); saveGame(); }
+    };
+}
+
+if (rBtn) {
+    rBtn.onclick = function() {
+        if (rebirthLevel < 10 && score >= rebirthCosts[rebirthLevel]) {
+            rebirthLevel++; scoreMultiplier += 0.25; score = 0; clickPower = 1; clickUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50;
+            alert(`Перерождение совершенно! Множитель: х${scoreMultiplier.toFixed(2)}`); updateUI(); saveGame();
         }
-    });
+    };
 }
 
-if (upgradeAutoBtn) {
-    upgradeAutoBtn.addEventListener('click', () => {
-        if (score >= upgradeAutoCost) { score -= upgradeAutoCost; autoClicksPerSecond += 1; upgradeAutoCost = Math.round(upgradeAutoCost * 1.5); updateUI(false); saveGame(); }
-    });
-}
+if (achTgl && achPnl) achTgl.onclick = function() { achPnl.classList.toggle('open'); };
 
-if (rebirthBtn) {
-    rebirthBtn.addEventListener('click', () => {
-        if (rebirthLevel >= 10) return;
-        let currentCost = rebirthCosts[rebirthLevel];
-        if (score >= currentCost) {
-            rebirthLevel += 1; scoreMultiplier += 0.25; score = 0; clickPower = 1; clickUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50;
-            alert(`Поздравляем с перерождением ${rebirthLevel}-го уровня!\nМножитель равен х${scoreMultiplier.toFixed(2)}!`);
-            updateUI(false); saveGame();
-        }
-    });
-}
-
-if (achievementsToggle && achievementsPanel) { achievementsToggle.addEventListener('click', () => { achievementsPanel.classList.toggle('open'); }); }
-
-if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
+if (rstBtn) {
+    rstBtn.onclick = function() {
         if (confirm("Вы уверены, что хотите полностью стереть игру?")) {
             localStorage.clear(); score = 0; clickPower = 1; clickUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50; rebirthLevel = 0; scoreMultiplier = 1.0;
+            achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false }; updateUI(true);
+        }
+    };
+}
+
+if (mMute) {
+    mMute.onclick = function() {
+        if (!bgM) return;
+        if (bgM.paused) { bgM.play().then(() => { musicStarted = true; mMute.textContent = "🔊 Звук: Вкл"; }).catch(() => alert("Сначала кликните по игре!")); }
+        else { bgM.pause(); mMute.textContent = "🔇 Звук: Выкл"; }
+    };
+}
+
+setInterval(() => { if (autoClicksPerSecond > 0) { score += autoClicksPerSecond * scoreMultiplier; updateUI(); saveGame(); } }, 1000);
+loadGame();
