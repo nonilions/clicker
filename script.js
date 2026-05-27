@@ -12,6 +12,7 @@ const clickBtn = document.getElementById('click-btn');
 const upgradeClickBtn = document.getElementById('upgrade-click');
 const upgradeAutoBtn = document.getElementById('upgrade-auto');
 const resetBtn = document.getElementById('reset-btn');
+const gameContainer = document.getElementById('game-container');
 
 // Элементы музыки
 const bgMusic = document.getElementById('bg-music');
@@ -86,18 +87,46 @@ function startMusic() {
     }
 }
 
-// Главный клик по игре с эффектом плавного сжатия
+// ФУНКЦИЯ ДЛЯ СОЗДАНИЯ ЛЕТАЮЩИХ ЦИФР
+function createFloatingNumber(event) {
+    if (!gameContainer) return;
+
+    // Создаем новый текстовый элемент
+    const floatEl = document.createElement('div');
+    floatEl.className = 'floating-number';
+    floatEl.textContent = `+${clickPower}`; // Пишет актуальную силу клика
+
+    // Находим координаты клика относительно контейнера игры
+    const rect = gameContainer.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    // Задаем позицию появления цифры
+    floatEl.style.left = `${x}px`;
+    floatEl.style.top = `${y}px`;
+
+    // Добавляем элемент на экран
+    gameContainer.appendChild(floatEl);
+
+    // Удаляем элемент из кода страницы через 800мс, когда анимация закончится
+    setTimeout(() => {
+        floatEl.remove();
+    }, 800);
+}
+
+// Главный клик по игре
 if (clickBtn) {
-    clickBtn.onclick = function() {
+    clickBtn.onclick = function(event) {
         score += clickPower;
         startMusic();
         updateUI();
         saveGame();
-
-        // Добавляем класс плавного сжатия кнопочки
-        clickBtn.classList.add('active-click');
         
-        // Через 80 миллисекунд плавно возвращаем её в прежнее состояние
+        // Запускаем эффект летающих цифр в месте клика
+        createFloatingNumber(event);
+
+        // Класс плавного сжатия
+        clickBtn.classList.add('active-click');
         setTimeout(() => {
             clickBtn.classList.remove('active-click');
         }, 80);
