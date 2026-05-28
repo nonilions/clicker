@@ -55,7 +55,6 @@
             background: #218838; 
             box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
         }
-        /* Оранжевые кнопки для супер-множителей */
         .super-shop button { background: #fd7e14; font-size: 14px; padding: 10px 20px; }
         .super-shop button:hover { 
             background: #e0630c; 
@@ -85,6 +84,39 @@
         #stats-display, #multiplier-display { color: #aaaaaa; font-size: 14px; margin: 5px 0; }
         #multiplier-display { color: #bb86fc; font-weight: bold; }
 
+        /* ВИЗУАЛЬНАЯ ПОЛОСА ПРОГРЕССА */
+        .progress-container {
+            width: 100%;
+            background-color: #333;
+            border-radius: 10px;
+            margin: 15px 0 5px 0;
+            overflow: hidden;
+            border: 1px solid #444;
+            position: relative;
+            height: 20px;
+        }
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #6f42c1, #a97af7);
+            box-shadow: 0 0 10px rgba(111, 66, 193, 0.5);
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 0;
+            height: 100%;
+            font-size: 12px;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
         .achievements-panel {
             max-height: 0;
             overflow: hidden;
@@ -105,13 +137,28 @@
         .status-badge { font-weight: bold; font-size: 12px; padding: 3px 8px; border-radius: 4px; background: #333; color: #777; }
         .achievement-item.unlocked .status-badge { background: #ffc107; color: #121212; }
 
+        /* ИСПРАВЛЕННЫЙ ТОСТ: ОН ТЕПЕРЬ НАДЕЖНО СПРЯТАН СНИЗУ ПО УМОЛЧАНИЮ */
         .toast-notification {
-            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background: #2a2415; color: #ffffff;
-            border: 2px solid #ffc107; padding: 15px 25px; border-radius: 30px; box-shadow: 0 5px 25px rgba(255, 193, 7, 0.4);
-            z-index: 9999; font-weight: bold; display: flex; align-items: center; gap: 10px;
+            position: fixed; 
+            bottom: -120px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: #2a2415; 
+            color: #ffffff;
+            border: 2px solid #ffc107; 
+            padding: 15px 25px; 
+            border-radius: 30px; 
+            box-shadow: 0 5px 25px rgba(255, 193, 7, 0.4);
+            z-index: 9999; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px;
             transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
-        .toast-notification.show { bottom: 30px; }
+        .toast-notification.show { 
+            bottom: 30px !important; 
+        }
 
         .floating-number {
             position: absolute; font-size: 24px; font-weight: bold; color: #00cbff; 
@@ -134,13 +181,18 @@
     
     <button id="click-btn">КЛИКАТЬ ТУТ!</button>
 
+    <!-- ПОЛОСА ПРОГРЕССА ДО СЛЕДУЮЩЕГО ПЕРЕРОЖДЕНИЯ -->
+    <div class="progress-container">
+        <div class="progress-bar" id="rebirth-progress"></div>
+        <div class="progress-text" id="progress-text">До перерождения: 0%</div>
+    </div>
+
     <div class="rebirth-section">
         <h3>Перерождение</h3>
         <p style="font-size: 13px; color: #aaa; margin: 0 0 10px 0;">Сбросит ваши очки и улучшения ради постоянного бонуса к кликам и автоклику!</p>
         <button id="rebirth-btn" class="disabled">💫 Переродиться<br><span id="rebirth-cost">100 000</span> очков</button>
     </div>
 
-    <!-- НОВЫЙ БЛОК СУПЕР-МНОЖИТЕЛЕЙ -->
     <div class="super-shop">
         <h3>Супер-множители</h3>
         <button id="buy-x2" class="disabled">⚡ Умножение X2 <br><span>500 000</span> очков</button>
@@ -167,7 +219,7 @@
 
     <div class="achievements-panel" id="achievements-panel">
         <div class="achievements">
-            <h3>Список достижений</h3>
+            <h3>Список achievements</h3>
             <div id="ach-first-steps" class="achievement-item">
                 <span>🌱 <b>Первые шаги:</b> Набрать 10 очков</span>
                 <span class="status-badge" id="badge-first-steps">Закрыто</span>
@@ -199,15 +251,3 @@
 <div id="toast-notification" class="toast-notification">
     <span style="font-size: 22px;">🏆</span>
     <div>
-        <div style="color: #ffc107; font-size: 12px;">ДОСТИЖЕНИЕ ОТКРЫТО!</div>
-        <div id="toast-text" style="font-size: 14px;">Название ачивки</div>
-    </div>
-</div>
-
-<audio id="bg-music" loop>
-    <source src="music.mp3" type="audio/mp3">
-</audio>
-
-<script src="script.js"></script>
-</body>
-</html>
