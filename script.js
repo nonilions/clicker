@@ -35,8 +35,8 @@ if(cBtn){
         cBtn.classList.add('active-click');setTimeout(()=>cBtn.classList.remove('active-click'),80);
     };
 }
-if(upCBtn){upCBtn.onclick=function(){if(score>=upgradeClickCost){score-=upgradeClickCost;clickPower+=clickUpgradeLevel;clickUpgradeLevel+=1;upgradeClickCost=Math.round(upgradeClickCost*1.6);updateUI();saveGame();}};}
-if(upABtn){upABtn.onclick=function(){if(score>=upgradeAutoCost){score-=upgradeAutoCost;autoClicksPerSecond+=autoUpgradeLevel;autoUpgradeLevel+=1;upgradeAutoCost=Math.round(upgradeAutoCost*1.6);updateUI();saveGame();}};}
+if(upCBtn){upCBtn.onclick=function(){if(score>=upgradeClickCost){score-=upgradeClickCost;clickPower+=clickUpgradeLevel;clickUpgradeLevel+=1;upgradeClickCost=Math.round(upgradeClickCost * 1.6);updateUI();saveGame();}};}
+if(upABtn){upABtn.onclick=function(){if(score>=upgradeAutoCost){score-=upgradeAutoCost;autoClicksPerSecond+=autoUpgradeLevel;autoUpgradeLevel+=1;upgradeAutoCost=Math.round(upgradeAutoCost * 1.6);updateUI();saveGame();}};}
 if(btnX2){btnX2.onclick=function(){if(!hasX2&&!hasX5&&!hasX10&&score>=500000){score-=500000;hasX2=true;recalcMultipliers();updateUI();saveGame();alert("Активирован множитель X2!");}};}
 if(btnX5){btnX5.onclick=function(){if(!hasX5&&!hasX10&&score>=2500000){score-=2500000;hasX5=true;recalcMultipliers();updateUI();saveGame();alert("Множитель заменен на X5!");}};}
 if(btnX10){btnX10.onclick=function(){if(!hasX10&&score>=10000000){score-=10000000;hasX10=true;recalcMultipliers();updateUI();saveGame();alert("Множитель заменен на X10!");}};}
@@ -46,4 +46,4 @@ if(rstBtn){rstBtn.onclick=function(){if(confirm("Вы уверены, что х�
 if(musicToggle){musicToggle.onclick=function(){if(!bgM)return;if(bgM.paused){bgM.play().then(()=>{musicStarted=true;musicToggle.textContent="🔊 Звук: Вкл";}).catch(()=>alert("Сначала кликните по игре!"));}else{bgM.pause();musicToggle.textContent="🔇 Звук: Выкл";}};}
 let inputBuffer="",clearTimer=null;
 window.addEventListener('keydown',(e)=>{clearTimeout(clearTimer);inputBuffer+=e.key.toLowerCase();if(inputBuffer.includes("cheat")){score+=500000;showToast("Чит-код активирован: +500,000 очков!");updateUI();saveGame();inputBuffer="";}clearTimer=setTimeout(()=>{inputBuffer="";},2000);});
-setInterval(()=>{if(autoClicksPerSecond > 0){score+=autoClicksPerSecondscoreMultipliershopMultiplier;updateUI();saveGame();}},1000);loadGame();
+setInterval(()=> { if (autoClicksPerSecond > 0) { score += autoClicksPerSecond * scoreMultiplier * shopMultiplier; updateUI(); saveGame(); } }, 1000);loadGame();
