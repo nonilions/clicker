@@ -1,6 +1,7 @@
 let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1, autoUpgradeLevel = 1, rebirthLevel = 0, scoreMultiplier = 1.0, musicStarted = false, hasX2 = false, hasX5 = false, hasX10 = false, shopMultiplier = 1.0;
-const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
 let achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
+
+const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
 
 const sDisp = document.getElementById('score-display'), stDisp = document.getElementById('stats-display'), mDisp = document.getElementById('multiplier-display');
 const cBtn = document.getElementById('click-btn'), upCBtn = document.getElementById('upgrade-click'), upABtn = document.getElementById('upgrade-auto');
@@ -86,6 +87,3 @@ if (btnX10) { btnX10.onclick = function() { if (!hasX10 && score >= 10000000) { 
 if (rBtn) { rBtn.onclick = function() { if (rebirthLevel < 10 && score >= rebirthCosts[rebirthLevel]) { rebirthLevel++; scoreMultiplier += 0.25; score = 0; clickPower = 1; clickUpgradeLevel = 1; autoUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50; alert(`Перерождение совершенно! Множитель: х${scoreMultiplier.toFixed(2)}`); updateUI(); saveGame(); } }; }
 if (achTgl && achPnl) achTgl.onclick = function() { achPnl.classList.toggle('open'); };
 
-if (rstBtn) {
-    rstBtn.onclick = function() {
-        if (confirm("Вы уверены, что хотите полностью стереть игру?")) {
