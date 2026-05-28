@@ -2,12 +2,19 @@ let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, u
 const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
 let achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
 
+// Переменные для купленных супер-множителей (сохраняются)
+let hasX2 = false, hasX5 = false, hasX10 = false;
+let shopMultiplier = 1.0; 
+
 const sDisp = document.getElementById('score-display'), stDisp = document.getElementById('stats-display'), mDisp = document.getElementById('multiplier-display');
 const cBtn = document.getElementById('click-btn'), upCBtn = document.getElementById('upgrade-click'), upABtn = document.getElementById('upgrade-auto');
 const rBtn = document.getElementById('rebirth-btn'), rCostEl = document.getElementById('rebirth-cost'), rstBtn = document.getElementById('reset-btn'), gCont = document.getElementById('game-container');
 const cTxt = document.getElementById('click-text'), cCost = document.getElementById('click-cost'), aCost = document.getElementById('auto-cost');
 const achTgl = document.getElementById('achievements-toggle'), achPnl = document.getElementById('achievements-panel'), toast = document.getElementById('toast-notification'), tTxt = document.getElementById('toast-text');
 const bgM = document.getElementById('bg-music'), mMute = document.getElementById('music-toggle');
+
+const btnX2 = document.getElementById('buy-x2'), btnX5 = document.getElementById('buy-x5'), btnX10 = document.getElementById('buy-x10');
+
 if (bgM) bgM.volume = 0.15;
 
 function loadGame() {
@@ -21,12 +28,18 @@ function loadGame() {
         autoUpgradeLevel = parseInt(localStorage.getItem('clicker_auto_level') || 1);
         rebirthLevel = parseInt(localStorage.getItem('clicker_rebirth_level') || 0);
         scoreMultiplier = parseFloat(localStorage.getItem('clicker_multiplier') || 1.0);
+        
+        hasX2 = localStorage.getItem('clicker_hasX2') === 'true';
+        hasX5 = localStorage.getItem('clicker_hasX5') === 'true';
+        hasX10 = localStorage.getItem('clicker_hasX10') === 'true';
+
         achs.firstSteps = localStorage.getItem('ach_firstSteps') === 'true';
         achs.clickMaster = localStorage.getItem('ach_clickMaster') === 'true';
         achs.autoTycoon = localStorage.getItem('ach_autoTycoon') === 'true';
         achs.luckySeven = localStorage.getItem('ach_luckySeven') === 'true';
         achs.millionaire = localStorage.getItem('ach_millionaire') === 'true';
     }
+    recalcMultipliers();
     updateUI(true);
 }
 
@@ -36,9 +49,22 @@ function saveGame() {
     localStorage.setItem('clicker_auto_cost', upgradeAutoCost); localStorage.setItem('clicker_click_level', clickUpgradeLevel);
     localStorage.setItem('clicker_auto_level', autoUpgradeLevel);
     localStorage.setItem('clicker_rebirth_level', rebirthLevel); localStorage.setItem('clicker_multiplier', scoreMultiplier);
+    
+    localStorage.setItem('clicker_hasX2', hasX2);
+    localStorage.setItem('clicker_hasX5', hasX5);
+    localStorage.setItem('clicker_hasX10', hasX10);
+
     localStorage.setItem('ach_firstSteps', achs.firstSteps); localStorage.setItem('ach_clickMaster', achs.clickMaster);
     localStorage.setItem('ach_autoTycoon', achs.autoTycoon); localStorage.setItem('ach_luckySeven', achs.luckySeven);
     localStorage.setItem('ach_millionaire', achs.millionaire);
+}
+
+// ИСПРАВЛЕНО: Множители теперь жестко заменяют друг друга, выбирая максимальный уровень
+function recalcMultipliers() {
+    shopMultiplier = 1.0;
+    if (hasX2) shopMultiplier = 2.0;
+    if (hasX5) shopMultiplier = 5.0;  // Заменяет X2
+    if (hasX10) shopMultiplier = 10.0; // Заменяет X5
 }
 
 function showToast(title) {
@@ -67,17 +93,34 @@ function upAch(rId, bId, open) {
 
 function updateUI(init = false) {
     if (sDisp) sDisp.textContent = Math.floor(score).toLocaleString();
-    if (stDisp) stDisp.textContent = `Сила клика: ${(clickPower * scoreMultiplier).toFixed(2)} | В секунду: ${(autoClicksPerSecond * scoreMultiplier).toFixed(2)}`;
-    if (mDisp) mDisp.textContent = `Множитель перерождения: x${scoreMultiplier.toFixed(2)} (Уровень ${rebirthLevel})`;
+    
+    let totalMult = scoreMultiplier * shopMultiplier;
+    if (stDisp) stDisp.textContent = `Сила клика: ${(clickPower * totalMult).toFixed(2)} | В секунду: ${(autoClicksPerSecond * totalMult).toFixed(2)}`;
+    
+    if (mDisp) mDisp.textContent = `Множитель: x${scoreMultiplier.toFixed(2)} (Престиж Ур. ${rebirthLevel}) | Магазин: x${shopMultiplier}`;
     if (cTxt) cTxt.textContent = `🚀 Сильный клик (+${clickUpgradeLevel} за нажатие)`;
-    if (upABtn) {
-        // Динамический текст для автокликера с растущим бонусом
-        upABtn.innerHTML = `🤖 Автокликер (+${autoUpgradeLevel} в сек.) <span id="auto-cost">${upgradeAutoCost}</span> очков`;
-    }
+    if (upABtn) upABtn.innerHTML = `🤖 Автокликер (+${autoUpgradeLevel} в сек.) <span id="auto-cost">${upgradeAutoCost}</span> очков`;
     if (cCost) cCost.textContent = upgradeClickCost;
     
     if (upCBtn) upCBtn.classList.toggle('disabled', score < upgradeClickCost);
     if (upABtn) upABtn.classList.toggle('disabled', score < upgradeAutoCost);
+    
+    // ИСПРАВЛЕНО: Умное визуальное отображение заменяемых кнопок
+    if (btnX2) {
+        if (hasX5 || hasX10) { btnX2.classList.add('disabled'); btnX2.innerHTML = "⚡ Умножение X2<br>ЗАМЕНЕНО"; }
+        else if (hasX2) { btnX2.classList.add('disabled'); btnX2.innerHTML = "⚡ Умножение X2<br>АКТИВНО"; }
+        else { btnX2.classList.toggle('disabled', score < 500000); }
+    }
+    if (btnX5) {
+        if (hasX10) { btnX5.classList.add('disabled'); btnX5.innerHTML = "🔥 Умножение X5<br>ЗАМЕНЕНО"; }
+        else if (hasX5) { btnX5.classList.add('disabled'); btnX5.innerHTML = "🔥 Умножение X5<br>АКТИВНО"; }
+        else { btnX5.classList.toggle('disabled', score < 2500000); }
+    }
+    if (btnX10) {
+        if (hasX10) { btnX10.classList.add('disabled'); btnX10.innerHTML = "👑 Умножение X10<br>АКТИВНО"; }
+        else { btnX10.classList.toggle('disabled', score < 10000000); }
+    }
+
     if (rBtn && rCostEl) {
         if (rebirthLevel >= 10) { rBtn.classList.add('disabled'); rCostEl.textContent = "МАКСИМУМ (Ур. 10)"; }
         else { rCostEl.textContent = rebirthCosts[rebirthLevel].toLocaleString() + " "; rBtn.classList.toggle('disabled', score < rebirthCosts[rebirthLevel]); }
@@ -87,11 +130,11 @@ function updateUI(init = false) {
 
 if (cBtn) {
     cBtn.onclick = function(e) {
-        score += clickPower * scoreMultiplier;
+        score += clickPower * scoreMultiplier * shopMultiplier; 
         if (!musicStarted && bgM) { bgM.play().then(() => { musicStarted = true; if (mMute) mMute.textContent = "🔊 Звук: Вкл"; }).catch(err => console.log(err)); }
         updateUI(); saveGame();
         if (gCont) {
-            const f = document.createElement('div'); f.className = 'floating-number'; f.textContent = `+${(clickPower * scoreMultiplier).toFixed(1)}`;
+            const f = document.createElement('div'); f.className = 'floating-number'; f.textContent = `+${(clickPower * scoreMultiplier * shopMultiplier).toFixed(1)}`;
             const rect = gCont.getBoundingClientRect(); f.style.left = `${e.clientX - rect.left}px`; f.style.top = `${e.clientY - rect.top}px`;
             gCont.appendChild(f); setTimeout(() => f.remove(), 800);
         }
@@ -107,57 +150,19 @@ if (upCBtn) {
 
 if (upABtn) {
     upABtn.onclick = function() {
-        if (score >= upgradeAutoCost) { 
-            score -= upgradeAutoCost; 
-            autoClicksPerSecond += autoUpgradeLevel; // Добавляем текущий растущий бонус
-            autoUpgradeLevel += 1;                  // Увеличиваем силу следующей покупки (+1 превращается в +2 и т.д.)
-            upgradeAutoCost = Math.round(upgradeAutoCost * 1.6); // Цена растет чуть быстрее
-            updateUI(); 
-            saveGame(); 
-        }
+        if (score >= upgradeAutoCost) { score -= upgradeAutoCost; autoClicksPerSecond += autoUpgradeLevel; autoUpgradeLevel += 1; upgradeAutoCost = Math.round(upgradeAutoCost * 1.6); updateUI(); saveGame(); }
     };
 }
 
-if (rBtn) {
-    rBtn.onclick = function() {
-        if (rebirthLevel < 10 && score >= rebirthCosts[rebirthLevel]) {
-            rebirthLevel++; scoreMultiplier += 0.25; score = 0; clickPower = 1; clickUpgradeLevel = 1; autoUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50;
-            alert(`Перерождение совершенно! Множитель: х${scoreMultiplier.toFixed(2)}`); updateUI(); saveGame();
-        }
+if (btnX2) {
+    btnX2.onclick = function() {
+        if (!hasX2 && !hasX5 && !hasX10 && score >= 500000) { score -= 500000; hasX2 = true; recalcMultipliers(); updateUI(); saveGame(); alert("Активирован множитель X2!"); }
     };
 }
-
-if (achTgl && achPnl) achTgl.onclick = function() { achPnl.classList.toggle('open'); };
-
-if (rstBtn) {
-    rstBtn.onclick = function() {
-        if (confirm("Вы уверены, что хотите полностью стереть игру?")) {
-            localStorage.clear(); score = 0; clickPower = 1; clickUpgradeLevel = 1; autoUpgradeLevel = 1; autoClicksPerSecond = 0; upgradeClickCost = 15; upgradeAutoCost = 50; rebirthLevel = 0; scoreMultiplier = 1.0;
-            achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false }; updateUI(true);
-        }
+if (btnX5) {
+    btnX5.onclick = function() {
+        if (!hasX5 && !hasX10 && score >= 2500000) { score -= 2500000; hasX5 = true; recalcMultipliers(); updateUI(); saveGame(); alert("Множитель X2 заменен на X5!"); }
     };
 }
-
-if (mMute) {
-    mMute.onclick = function() {
-        if (!bgM) return;
-        if (bgM.paused) { bgM.play().then(() => { musicStarted = true; mMute.textContent = "🔊 Звук: Вкл"; }).catch(() => alert("Сначала кликните по игре!")); }
-        else { bgM.pause(); mMute.textContent = "🔇 Звук: Выкл"; }
-    };
-}
-
-let inputBuffer = "";
-window.addEventListener('keydown', (e) => {
-    inputBuffer += e.key.toLowerCase();
-    inputBuffer = inputBuffer.slice(-10);
-    if (inputBuffer.includes("cheat")) {
-        score += 500000;
-        showToast("Чит-код активирован: +500,000 очков!");
-        updateUI();
-        saveGame();
-        inputBuffer = "";
-    }
-});
-
-setInterval(() => { if (autoClicksPerSecond > 0) { score += autoClicksPerSecond * scoreMultiplier; updateUI(); saveGame(); } }, 1000);
-loadGame();
+if (btnX10) {
+    btnX10.onclick = function() {
