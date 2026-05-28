@@ -46,3 +46,4 @@ if(rstBtn){rstBtn.onclick=function(){if(confirm("Вы уверены, что х�
 if(musicToggle){musicToggle.onclick=function(){if(!bgM)return;if(bgM.paused){bgM.play().then(()=>{musicStarted=true;musicToggle.textContent="🔊 Звук: Вкл";}).catch(()=>alert("Сначала кликните по игре!"));}else{bgM.pause();musicToggle.textContent="🔇 Звук: Выкл";}};}
 let inputBuffer="",clearTimer=null;
 window.addEventListener('keydown',(e)=>{clearTimeout(clearTimer);inputBuffer+=e.key.toLowerCase();if(inputBuffer.includes("cheat")){score+=500000;showToast("Чит-код активирован: +500,000 очков!");updateUI();saveGame();inputBuffer="";}clearTimer=setTimeout(()=>{inputBuffer="";},2000);});
+setInterval(()=>{if(autoClicksPerSecond > 0){score+=autoClicksPerSecondscoreMultipliershopMultiplier;updateUI();saveGame();}},1000);loadGame();
