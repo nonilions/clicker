@@ -1,50 +1,390 @@
-let s=0,cp=1,aps=0,cc=15,ac=50,cul=1,aul=1,rl=0,sm=1.0,ms=false,x2=false,x5=false,x10=false,shm=1.0;
-let acs={f:false,cm:false,at:false,l7:false,m:false};
-function grc(l){return l===0?100k:l===1?500k:l===2?1M:l===3?2M:l===4?3.5M:l===5?5M:l===6?7.5M:l===7?10M:l===8?15M:25M;}
-const sd=document.getElementById('score-display'),std=document.getElementById('stats-display'),md=document.getElementById('multiplier-display'),cb=document.getElementById('click-btn'),uc=document.getElementById('upgrade-click'),ua=document.getElementById('upgrade-auto'),rb=document.getElementById('rebirth-btn'),rce=document.getElementById('rebirth-cost'),rst=document.getElementById('reset-btn'),gc=document.getElementById('game-container'),rp=document.getElementById('rebirth-progress'),pt=document.getElementById('progress-text'),b2=document.getElementById('buy-x2'),b5=document.getElementById('buy-x5'),b10=document.getElementById('buy-x10'),toast=document.getElementById('toast-notification'),tt=document.getElementById('toast-text'),bgm=document.getElementById('bg-music'),mt=document.getElementById('music-toggle');
-if(bgm)bgm.volume=0.15;
-function loadGame(){
-    if(localStorage.getItem('mega_score_v4')!==null){
-        s=parseFloat(localStorage.getItem('mega_score_v4')||0);cp=parseInt(localStorage.getItem('mega_power_v4')||1);aps=parseInt(localStorage.getItem('mega_auto_v4')||0);cc=parseInt(localStorage.getItem('mega_ccost_v4')||15);ac=parseInt(localStorage.getItem('mega_acost_v4')||50);cul=parseInt(localStorage.getItem('mega_clvl_v4')||1);aul=parseInt(localStorage.getItem('mega_alvl_v4')||1);rl=parseInt(localStorage.getItem('mega_rlvl_v4')||0);sm=parseFloat(localStorage.getItem('mega_mult_v4')||1.0);x2=localStorage.getItem('mega_x2_v4')==='true';x5=localStorage.getItem('mega_x5_v4')==='true';x10=localStorage.getItem('mega_x10_v4')==='true';acs.f=localStorage.getItem('mega_ach1_v4')==='true';acs.cm=localStorage.getItem('mega_ach2_v4')==='true';acs.at=localStorage.getItem('mega_ach3_v4')==='true';acs.l7=localStorage.getItem('mega_ach4_v4')==='true';acs.m=localStorage.getItem('mega_ach5_v4')==='true';
+let score = 0;
+let clickPower = 1;
+let autoClicksPerSecond = 0;
+let upgradeClickCost = 15;
+let upgradeAutoCost = 50;
+let clickUpgradeLevel = 1;
+let autoUpgradeLevel = 1;
+let rebirthLevel = 0;
+let scoreMultiplier = 1.0;
+let musicStarted = false;
+let hasX2 = false;
+let hasX5 = false;
+let hasX10 = false;
+let shopMultiplier = 1.0;
+
+let achs = { 
+    firstSteps: false, 
+    clickMaster: false, 
+    autoTycoon: false, 
+    luckySeven: false, 
+    millionaire: false 
+};
+
+function getRebirthCost(lvl) {
+    if (lvl === 0) return 100000;
+    if (lvl === 1) return 500000;
+    if (lvl === 2) return 1000000;
+    if (lvl === 3) return 2000000;
+    if (lvl === 4) return 3500000;
+    if (lvl === 5) return 5000000;
+    if (lvl === 6) return 7500000;
+    if (lvl === 7) return 10000000;
+    if (lvl === 8) return 15000000;
+    return 25000000;
+}
+
+const sDisp = document.getElementById('score-display');
+const stDisp = document.getElementById('stats-display');
+const mDisp = document.getElementById('multiplier-display');
+const cBtn = document.getElementById('click-btn');
+const upCBtn = document.getElementById('upgrade-click');
+const upABtn = document.getElementById('upgrade-auto');
+const rBtn = document.getElementById('rebirth-btn');
+const rCostEl = document.getElementById('rebirth-cost');
+const rstBtn = document.getElementById('reset-btn');
+const gCont = document.getElementById('game-container');
+const rProg = document.getElementById('rebirth-progress');
+const pTxt = document.getElementById('progress-text');
+const btnX2 = document.getElementById('buy-x2');
+const btnX5 = document.getElementById('buy-x5');
+const btnX10 = document.getElementById('buy-x10');
+const toast = document.getElementById('toast-notification');
+const tTxt = document.getElementById('toast-text');
+const bgM = document.getElementById('bg-music');
+const musicToggle = document.getElementById('music-toggle');
+
+if (bgM) bgM.volume = 0.15;
+
+function loadGame() {
+    if (localStorage.getItem('mega_score_v4') !== null) {
+        score = parseFloat(localStorage.getItem('mega_score_v4') || 0);
+        clickPower = parseInt(localStorage.getItem('mega_power_v4') || 1);
+        autoClicksPerSecond = parseInt(localStorage.getItem('mega_auto_v4') || 0);
+        upgradeClickCost = parseInt(localStorage.getItem('mega_ccost_v4') || 15);
+        upgradeAutoCost = parseInt(localStorage.getItem('mega_acost_v4') || 50);
+        clickUpgradeLevel = parseInt(localStorage.getItem('mega_clvl_v4') || 1);
+        autoUpgradeLevel = parseInt(localStorage.getItem('mega_alvl_v4') || 1);
+        rebirthLevel = parseInt(localStorage.getItem('mega_rlvl_v4') || 0);
+        scoreMultiplier = parseFloat(localStorage.getItem('mega_mult_v4') || 1.0);
+        hasX2 = localStorage.getItem('mega_x2_v4') === 'true';
+        hasX5 = localStorage.getItem('mega_x5_v4') === 'true';
+        hasX10 = localStorage.getItem('mega_x10_v4') === 'true';
+        achs.firstSteps = localStorage.getItem('mega_ach1_v4') === 'true';
+        achs.clickMaster = localStorage.getItem('mega_ach2_v4') === 'true';
+        achs.autoTycoon = localStorage.getItem('mega_ach3_v4') === 'true';
+        achs.luckySeven = localStorage.getItem('mega_ach4_v4') === 'true';
+        achs.millionaire = localStorage.getItem('mega_ach5_v4') === 'true';
     }
-    rcm();uui(true);
+    recalcMultipliers();
+    updateUI(true);
 }
-function saveGame(){
-    localStorage.setItem('mega_score_v4',s);localStorage.setItem('mega_power_v4',cp);localStorage.setItem('mega_auto_v4',aps);localStorage.setItem('mega_ccost_v4',cc);localStorage.setItem('mega_acost_v4',ac);localStorage.setItem('mega_clvl_v4',cul);localStorage.setItem('mega_alvl_v4',aul);localStorage.setItem('mega_rlvl_v4',rl);localStorage.setItem('mega_mult_v4',sm);localStorage.setItem('mega_x2_v4',x2);localStorage.setItem('mega_x5_v4',x5);localStorage.setItem('mega_x10_v4',x10);localStorage.setItem('mega_ach1_v4',acs.f);localStorage.setItem('mega_ach2_v4',acs.cm);localStorage.setItem('mega_ach3_v4',acs.at);localStorage.setItem('mega_ach4_v4',acs.l7);localStorage.setItem('mega_ach5_v4',acs.m);
+
+function saveGame() {
+    localStorage.setItem('mega_score_v4', score);
+    localStorage.setItem('mega_power_v4', clickPower);
+    localStorage.setItem('mega_auto_v4', autoClicksPerSecond);
+    localStorage.setItem('mega_ccost_v4', upgradeClickCost);
+    localStorage.setItem('mega_acost_v4', upgradeAutoCost);
+    localStorage.setItem('mega_clvl_v4', clickUpgradeLevel);
+    localStorage.setItem('mega_alvl_v4', autoUpgradeLevel);
+    localStorage.setItem('mega_rlvl_v4', rebirthLevel);
+    localStorage.setItem('mega_mult_v4', scoreMultiplier);
+    localStorage.setItem('mega_x2_v4', hasX2);
+    localStorage.setItem('mega_x5_v4', hasX5);
+    localStorage.setItem('mega_x10_v4', hasX10);
+    localStorage.setItem('mega_ach1_v4', achs.firstSteps);
+    localStorage.setItem('mega_ach2_v4', achs.clickMaster);
+    localStorage.setItem('mega_ach3_v4', achs.autoTycoon);
+    localStorage.setItem('mega_ach4_v4', achs.luckySeven);
+    localStorage.setItem('mega_ach5_v4', achs.millionaire);
 }
-function rcm(){shm=1.0;if(x2)shm=2.0;if(x5)shm=5.0;if(x10)shm=10.0;}
-function st(t){if(toast&&tt){tt.textContent=t;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),3000);}}
-function cac(init=false){
-    if(!acs.f&&s>=10){acs.f=true;if(!init)st("Первые шаги (10 очков!)");}if(!acs.cm&&cp>=5){acs.cm=true;if(!init)st("Клик-мастер (Сила клика 5)");}if(!acs.at&&aps>=1){acs.at=true;if(!init)st("Авто-магнат (Куплен автокликер)");}if(!acs.l7&&Math.floor(s)===777){acs.l7=true;if(!init)st("Счастливая семерка (Ровно 777!)");}if(!acs.m&&s>=1000000){acs.m=true;if(!init)st("Миллионер (1,000,000 очков!)");}
-    ua('ach-first-steps','badge-first-steps',acs.f);ua('ach-click-master','badge-click-master',acs.cm);ua('ach-auto-tycoon','badge-auto-tycoon',acs.at);ua('ach-lucky-seven','badge-lucky-seven',acs.l7);ua('ach-millionaire','badge-millionaire',acs.m);
+
+function recalcMultipliers() {
+    shopMultiplier = 1.0;
+    if (hasX2) shopMultiplier = 2.0;
+    if (hasX5) shopMultiplier = 5.0;
+    if (hasX10) shopMultiplier = 10.0;
 }
-function ua(rId,bId,o){const r=document.getElementById(rId),b=document.getElementById(bId);if(r&&b){r.classList.toggle('unlocked',o);b.textContent=o?'Открыто!':'Закрыто';}}
-function uui(init=false){
-    if(sd)sd.textContent=Math.floor(s).toLocaleString();let tm=sm*shm;if(std)std.textContent=`Сила клика: ${(cp*tm).toFixed(2)} | В секунду: ${(aps*tm).toFixed(2)}`;if(md)md.textContent=`Множитель: x${sm.toFixed(2)} (Престиж Ур. ${rl}) | Магазин: x${shm}`;
-    const clt=document.getElementById('click-text'),clc=document.getElementById('click-cost'),auc=document.getElementById('auto-cost');if(clt)clt.textContent=`🚀 Сильный клик (+${cul} за нажатие)`;if(clc)clc.textContent=cc;if(auc)auc.textContent=ac;if(uc)uc.classList.toggle('disabled',s<cc);if(ua)ua.classList.toggle('disabled',s<ac);
-    if(b2){if(x5||x10)b2.innerHTML="⚡ Умножение X2<br>ЗАМЕНЕНО";else if(x2)b2.innerHTML="⚡ Умножение X2<br>АКТИВНО";else b2.innerHTML="⚡ Умножение X2 <br><span>500 000</span> очков";b2.classList.toggle('disabled',x2||x5||x10||s<500000);}
-    if(b5){if(x10)b5.innerHTML="🔥 Умножение X5<br>ЗАМЕНЕНО";else if(x5)b5.innerHTML="🔥 Умножение X5<br>АКТИВНО";else b5.innerHTML="🔥 Умножение X5 <br><span>2 500 000</span> очков";b5.classList.toggle('disabled',x10||x5||s<2500000);}
-    if(b10){if(x10)b10.innerHTML="👑 Умножение X10<br>АКТИВНО";else b10.innerHTML="👑 Умножение X10 <br><span>10 000 000</span> очков";b10.classList.toggle('disabled',x10||s<10000000);}
-    let cur=grc(rl);if(rb&&rce){if(rl>9){rb.classList.add('disabled');rce.textContent="МАКСИМУМ (Ур. 10)";}else{rce.textContent=cur.toLocaleString()+" ";rb.classList.toggle('disabled',s<cur);}}
-    if(rp&&pt){if(rl>9){rp.style.width="100%";pt.textContent="Достигнут макс. уровень!";}else{let pct=Math.min(100,Math.floor((s/cur)*100));rp.style.width=pct+"%";pt.textContent="До перерождения: "+pct+"%";}}
-    cac(init);
+
+function showToast(t) {
+    if (toast && tTxt) {
+        tTxt.textContent = t;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
 }
-if(cb){
-    cb.onclick=function(e){
-        s+=cp*sm*shm;if(!ms&&bgm){bgm.play().then(()=>{ms=true;if(mt)mt.textContent="🔊 Звук: Вкл";}).catch(err=>console.log(err));}uui();saveGame();
-        if(gc){const f=document.createElement('div');f.className='floating-number';f.textContent=`+${(cp*sm*shm).toFixed(1)}`;const r=gc.getBoundingClientRect();f.style.left=`${e.clientX-r.left}px`;f.style.top=`${e.clientY-r.top}px`;gc.appendChild(f);setTimeout(()=>f.remove(),800);}
-        cb.classList.add('active-click');setTimeout(()=>cb.classList.remove('active-click'),80);
+
+function checkAchs(init = false) {
+    if (!achs.firstSteps && score >= 10) {
+        achs.firstSteps = true;
+        if (!init) showToast("First Steps!");
+    }
+    if (!achs.clickMaster && clickPower >= 5) {
+        achs.clickMaster = true;
+        if (!init) showToast("Click Master!");
+    }
+    if (!achs.autoTycoon && autoClicksPerSecond >= 1) {
+        achs.autoTycoon = true;
+        if (!init) showToast("Auto Tycoon!");
+    }
+    if (!achs.luckySeven && Math.floor(score) === 777) {
+        achs.luckySeven = true;
+        if (!init) showToast("Lucky 777!");
+    }
+    if (!achs.millionaire && score >= 1000000) {
+        achs.millionaire = true;
+        if (!init) showToast("Millionaire!");
+    }
+    upAch('ach-first-steps', 'badge-first-steps', achs.firstSteps);
+    upAch('ach-click-master', 'badge-click-master', achs.clickMaster);
+    upAch('ach-auto-tycoon', 'badge-auto-tycoon', achs.autoTycoon);
+    upAch('ach-lucky-seven', 'badge-lucky-seven', achs.luckySeven);
+    upAch('ach-millionaire', 'badge-millionaire', achs.millionaire);
+}
+
+function upAch(rId, bId, open) {
+    const r = document.getElementById(rId);
+    const b = document.getElementById(bId);
+    if (r && b) {
+        r.classList.toggle('unlocked', open);
+        b.textContent = open ? 'Открыто!' : 'Закрыто';
+    }
+}
+
+function updateUI(init = false) {
+    if (sDisp) sDisp.textContent = Math.floor(score).toLocaleString();
+    let totalMult = scoreMultiplier * shopMultiplier;
+    
+    if (stDisp) {
+        let cPowerText = (clickPower * totalMult).toFixed(2);
+        let aPowerText = (autoClicksPerSecond * totalMult).toFixed(2);
+        stDisp.textContent = "Сила клика: " + cPowerText + " | В секунду: " + aPowerText;
+    }
+    
+    if (mDisp) {
+        let rText = scoreMultiplier.toFixed(2);
+        mDisp.textContent = "Множитель: x" + rText + " (Престиж Ур. " + rebirthLevel + ") | Магазин: x" + shopMultiplier;
+    }
+    
+    if (clickTextEl) {
+        clickTextEl.textContent = "🚀 Сильный клик (+" + clickUpgradeLevel + " за нажатие)";
+    }
+    
+    if (upABtn) {
+        upABtn.innerHTML = "🤖 Автокликер (+" + autoUpgradeLevel + " в сек.) <span id='auto-cost'>" + upgradeAutoCost + "</span> очков";
+    }
+    
+    if (clickCostEl) clickCostEl.textContent = upgradeClickCost;
+    if (upCBtn) upCBtn.classList.toggle('disabled', score < upgradeClickCost);
+    if (upABtn) upABtn.classList.toggle('disabled', score < upgradeAutoCost);
+
+    if (btnX2) {
+        if (hasX5 || hasX10) btnX2.innerHTML = "⚡ Умножение X2<br>ЗАМЕНЕНО";
+        else if (hasX2) btnX2.innerHTML = "⚡ Умножение X2<br>АКТИВНО";
+        else btnX2.innerHTML = "⚡ Умножение X2 <br><span>500 000</span> очков";
+        btnX2.classList.toggle('disabled', hasX2 || hasX5 || hasX10 || score < 500000);
+    }
+    if (btnX5) {
+        if (hasX10) btnX5.innerHTML = "🔥 Умножение X5<br>ЗАМЕНЕНО";
+        else if (hasX5) btnX5.innerHTML = "🔥 Умножение X5<br>АКТИВНО";
+        else btnX5.innerHTML = "🔥 Умножение X5 <br><span>2 500 000</span> очков";
+        btnX5.classList.toggle('disabled', hasX10 || hasX5 || score < 2500000);
+    }
+    if (btnX10) {
+        if (hasX10) btnX10.innerHTML = "👑 Умножение X10<br>АКТИВНО";
+        else btnX10.innerHTML = "👑 Умножение X10 <br><span>10 000 000</span> очков";
+        btnX10.classList.toggle('disabled', hasX10 || score < 10000000);
+    }
+
+    let currentCost = getRebirthCost(rebirthLevel);
+    if (rBtn && rCostEl) {
+        if (rebirthLevel > 9) {
+            rBtn.classList.add('disabled');
+            rCostEl.textContent = "МАКСИМУМ (Ур. 10)";
+        } else {
+            rCostEl.textContent = currentCost.toLocaleString() + " ";
+            rBtn.classList.toggle('disabled', score < currentCost);
+        }
+    }
+    if (rProg && pTxt) {
+        if (rebirthLevel > 9) {
+            rProg.style.width = "100%";
+            pTxt.textContent = "Достигнут макс. уровень!";
+        } else {
+            let pct = Math.min(100, Math.floor((score / currentCost) * 100));
+            rProg.style.width = pct + "%";
+            pTxt.textContent = "До перерождения: " + pct + "%";
+        }
+    }
+    checkAchs(init);
+}
+
+if (cBtn) {
+    cBtn.onclick = function(e) {
+        score += clickPower * scoreMultiplier * shopMultiplier;
+        if (!musicStarted && bgM) {
+            bgM.play().then(() => {
+                musicStarted = true;
+                if (musicToggle) musicToggle.textContent = "🔊 Звук: Вкл";
+            }).catch(err => console.log(err));
+        }
+        updateUI();
+        saveGame();
+        if (gCont) {
+            const f = document.createElement('div');
+            f.className = 'floating-number';
+            f.textContent = "+" + (clickPower * scoreMultiplier * shopMultiplier).toFixed(1);
+            const rect = gCont.getBoundingClientRect();
+f.style.left = (e.clientX - rect.left) + "px";
+            f.style.top = (e.clientY - rect.top) + "px";
+            gCont.appendChild(f);
+            setTimeout(() => f.remove(), 800);
+        }
+        cBtn.classList.add('active-click');
+        setTimeout(() => cBtn.classList.remove('active-click'), 80);
+        };
+}
+if (upCBtn) {
+    upCBtn.onclick = function() {
+        if (score >= upgradeClickCost) {
+            score -= upgradeClickCost;
+            clickPower += clickUpgradeLevel;
+            clickUpgradeLevel += 1;
+            upgradeClickCost = Math.round(upgradeClickCost * 1.6);
+            updateUI();
+            saveGame();
+        }
     };
 }
-if(uc){uc.onclick=function(){if(s>=cc){s-=cc;cp+=cul;cul+=1;cc=Math.round(cc*1.6);uui();saveGame();}};}
-if(ua){ua.onclick=function(){if(s>=ac){s-=ac;aps+=aul;aul+=1;ac=Math.round(ac*1.6);uui();saveGame();}};}
-if(b2){b2.onclick=function(){if(!x2&&!x5&&!x10&&s>=500000){s-=500000;x2=true;rcm();uui();saveGame();alert("Активирован множитель X2!");}};}
-if(b5){b5.onclick=function(){if(!x5&&!x10&&s>=2500000){s-=2500000;x5=true;rcm();uui();saveGame();alert("Множитель заменен на X5!");}};}
-if(b10){b10.onclick=function(){if(!x10&&s>=10000000){s-=10000000;x10=true;rcm();uui();saveGame();alert("Множитель заменен на X10!");}};}
-if(rb){rb.onclick=function(){if(rl<10&&s>=grc(rl)){s=0;cp=1;cul=1;aul=1;aps=0;cc=15;ac=50;x2=false;x5=false;x10=false;rcm();rl++;sm+=0.25;alert(`Перерождение совершено! Множитель престижа: х${sm.toFixed(2)}\nСупер-множители сброшены!`);uui();saveGame();}};}
-if(achTgl&&achPnl)achTgl.onclick=function(){achPnl.classList.toggle('open');};
-if(rst){rst.onclick=function(){if(confirm("Вы уверены, что хотите полностью стереть игру?")){localStorage.clear();s=0;cp=1;cul=1;aul=1;aps=0;cc=15;ac=50;rl=0;sm=1.0;x2=false;x5=false;x10=false;rcm();acs={f:false,cm:false,at:false,l7:false,m:false};uui(true);}};}
-if(mt){mt.onclick=function(){if(!bgm)return;if(bgm.paused){bgm.play().then(()=>{ms=true;mt.textContent="🔊 Звук: Вкл";}).catch(()=>alert("Сначала кликните по игре!"));}else{bgm.pause();mt.textContent="🔇 Звук: Выкл";}};}
-let ib="",ct=null;window.addEventListener('keydown',(e)=>{clearTimeout(ct);ib+=e.key.toLowerCase();if(ib.includes("cheat")){s+=500000;st("Чит-код активирован: +500,000 очков!");uui();saveGame();ib="";}ct=setTimeout(()=>{ib="";},2000);});
-setInterval(()=>{if(aps>0){s+=aps*sm*shm;uui();saveGame();}},1000);
+
+if (btnX2) {
+    btnX2.onclick = function() {
+        if (!hasX2 && !hasX5 && !hasX10 && score >= 500000) {
+            score -= 500000;
+            hasX2 = true;
+            recalcMultipliers();
+            updateUI();
+            saveGame();
+            alert("M_X2");
+            }
+    };
+}
+
+if (btnX5) {
+    btnX5.onclick = function() {
+        if (!hasX5 && !hasX10 && score >= 2500000) {
+            score -= 2500000;
+            hasX5 = true;
+            recalcMultipliers();
+            updateUI();
+            saveGame();
+            alert("M_X5");
+            }
+    };
+}
+
+if (btnX10) {
+    btnX10.onclick = function() {
+        if (!hasX10 && score >= 10000000) {
+            score -= 10000000;
+            hasX10 = true;
+            recalcMultipliers();
+            updateUI();
+            saveGame();
+            alert("M_X10");
+        }
+    };
+}
+
+if (rBtn) {
+    rBtn.onclick = function() {
+        if (rebirthLevel < 10 && score >= getRebirthCost(rebirthLevel)) {
+            score = 0;
+            clickPower = 1;
+            clickUpgradeLevel = 1;
+            autoUpgradeLevel = 1;
+            autoClicksPerSecond = 0;
+            upgradeClickCost = 15;
+            upgradeAutoCost = 50;
+            hasX2 = false;
+            hasX5 = false;
+            hasX10 = false;
+            recalcMultipliers();
+            rebirthLevel++;
+            scoreMultiplier += 0.25;
+            alert("Rebirth Completed!");
+            updateUI();
+            saveGame();
+            }
+    };
+}
+
+if (achTgl && achPnl) {
+    achTgl.onclick = function() {
+        achPnl.classList.toggle('open');
+    };
+}
+
+if (rstBtn) {
+    rstBtn.onclick = function() {
+        if (confirm("Reset Game?")) {
+            localStorage.clear();
+            score = 0;
+            clickPower = 1;
+            clickUpgradeLevel = 1;
+            autoUpgradeLevel = 1;
+            autoClicksPerSecond = 0;
+            upgradeClickCost = 15;
+            upgradeAutoCost = 50;
+            rebirthLevel = 0;
+            scoreMultiplier = 1.0;
+            hasX2 = false;
+            hasX5 = false;
+            hasX10 = false;
+            recalcMultipliers();
+            achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
+            updateUI(true);
+        }
+    };
+}
+
+if (musicToggle) {
+    musicToggle.onclick = function() {
+        if (!bgM) return;
+        if (bgM.paused) {
+            bgM.play().then(() => {
+                musicStarted = true;
+                musicToggle.textContent = "🔊 Звук: Вкл";
+            }).catch(() => alert("Click game first!"));
+        } else {
+            bgM.pause();
+            musicToggle.textContent = "🔇 Звук: Выкл";
+        }
+    };
+}
+
+let inputBuffer = "";
+let clearTimer = null;
+
+window.addEventListener('keydown', (e) => {
+    clearTimeout(clearTimer);
+    inputBuffer += e.key.toLowerCase();
+    if (inputBuffer.includes("cheat")) {
+        score += 500000;
+        showToast("Cheat OK: +500,000!");
+        updateUI();
+        saveGame();
+        inputBuffer = "";
+    }
+    clearTimer = setTimeout(() => { inputBuffer = ""; }, 2000);
+});
+
+setInterval(() => {
+    if (autoClicksPerSecond > 0) {
+        score += autoClicksPerSecond * scoreMultiplier * shopMultiplier;
+        updateUI();
+        saveGame();
+    }
+}, 1000);
 loadGame();
