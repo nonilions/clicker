@@ -236,155 +236,31 @@ if (cBtn) {
             f.className = 'floating-number';
             f.textContent = "+" + (clickPower * scoreMultiplier * shopMultiplier).toFixed(1);
             const rect = gCont.getBoundingClientRect();
+
 f.style.left = (e.clientX - rect.left) + "px";
             f.style.top = (e.clientY - rect.top) + "px";
-            gCont.appendChild(f);
-            setTimeout(() => f.remove(), 800);
-        }
-        cBtn.classList.add('active-click');
-        setTimeout(() => cBtn.classList.remove('active-click'), 80);
-        };
+            gCont.appendChild(f);setTimeout(() => f.remove(), 800);
+        }cBtn.classList.add('active-click');setTimeout(() => cBtn.classList.remove('active-click'), 80);
+    };
 }
+
 if (upCBtn) {
     upCBtn.onclick = function() {
         if (score >= upgradeClickCost) {
             score -= upgradeClickCost;
             clickPower += clickUpgradeLevel;
             clickUpgradeLevel += 1;
-            upgradeClickCost = Math.round(upgradeClickCost * 1.6);
-            updateUI();
+            upgradeClickCost = Math.round(upgradeClickCost * 1.6);updateUI();
             saveGame();
         }
     };
 }
 
-if (btnX2) {
-    btnX2.onclick = function() {
-        if (!hasX2 && !hasX5 && !hasX10 && score >= 500000) {
-            score -= 500000;
-            hasX2 = true;
-            recalcMultipliers();
-            updateUI();
-            saveGame();
-            alert("M_X2");
-            }
-    };
-}
-
-if (btnX5) {
-    btnX5.onclick = function() {
-        if (!hasX5 && !hasX10 && score >= 2500000) {
-            score -= 2500000;
-            hasX5 = true;
-            recalcMultipliers();
-            updateUI();
-            saveGame();
-            alert("M_X5");
-            }
-    };
-}
-
-if (btnX10) {
-    btnX10.onclick = function() {
-        if (!hasX10 && score >= 10000000) {
-            score -= 10000000;
-            hasX10 = true;
-            recalcMultipliers();
-            updateUI();
-            saveGame();
-            alert("M_X10");
-        }
-    };
-}
-
-if (rBtn) {
-    rBtn.onclick = function() {
-        if (rebirthLevel < 10 && score >= getRebirthCost(rebirthLevel)) {
-            score = 0;
-            clickPower = 1;
-            clickUpgradeLevel = 1;
-            autoUpgradeLevel = 1;
-            autoClicksPerSecond = 0;
-            upgradeClickCost = 15;
-            upgradeAutoCost = 50;
-            hasX2 = false;
-            hasX5 = false;
-            hasX10 = false;
-            recalcMultipliers();
-            rebirthLevel++;
-            scoreMultiplier += 0.25;
-            alert("Rebirth Completed!");
-            updateUI();
-            saveGame();
-            }
-    };
-}
-
-if (achTgl && achPnl) {
-    achTgl.onclick = function() {
-        achPnl.classList.toggle('open');
-    };
-}
-
-if (rstBtn) {
-    rstBtn.onclick = function() {
-        if (confirm("Reset Game?")) {
-            localStorage.clear();
-            score = 0;
-            clickPower = 1;
-            clickUpgradeLevel = 1;
-            autoUpgradeLevel = 1;
-            autoClicksPerSecond = 0;
-            upgradeClickCost = 15;
-            upgradeAutoCost = 50;
-            rebirthLevel = 0;
-            scoreMultiplier = 1.0;
-            hasX2 = false;
-            hasX5 = false;
-            hasX10 = false;
-            recalcMultipliers();
-            achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
-            updateUI(true);
-        }
-    };
-}
-
-if (musicToggle) {
-    musicToggle.onclick = function() {
-        if (!bgM) return;
-        if (bgM.paused) {
-            bgM.play().then(() => {
-                musicStarted = true;
-                musicToggle.textContent = "🔊 Звук: Вкл";
-            }).catch(() => alert("Click game first!"));
-        } else {
-            bgM.pause();
-            musicToggle.textContent = "🔇 Звук: Выкл";
-        }
-    };
-}
-
-let inputBuffer = "";
-let clearTimer = null;
-
-window.addEventListener('keydown', (e) => {
-    clearTimeout(clearTimer);
-    inputBuffer += e.key.toLowerCase();
-    if (inputBuffer.includes("cheat")) {
-        score += 500000;
-        showToast("Cheat OK: +500,000!");
-        updateUI();
-        saveGame();
-        inputBuffer = "";
-    }
-    clearTimer = setTimeout(() => { inputBuffer = ""; }, 2000);
-});
-
-setInterval(() => {
-    if (autoClicksPerSecond > 0) {
-        score += autoClicksPerSecond * scoreMultiplier * shopMultiplier;
-        updateUI();
-        saveGame();
-    }
-}, 1000);
-loadGame();
+if (upABtn) {
+    upABtn.onclick = function() {
+        if (score >= upgradeAutoCost) {
+            score -= upgradeAutoCost;
+            autoClicksPerSecond += autoUpgradeLevel;
+            autoUpgradeLevel += 1;
+            upgradeAutoCost = Math.round(upgradeAutoCost * 1.6);
+            updateUI();saveGame();}};}if (btnX2) {btnX2.onclick = function() {if (!hasX2 && !hasX5 && !hasX10 && score >= 500000) {score -= 500000;hasX2 = true;recalcMultipliers();updateUI();saveGame();alert("M_X2");}};}if (btnX5) {btnX5.onclick = function() {if (!hasX5 && !hasX10 && score >= 2500000) {score -= 2500000;hasX5 = true;recalcMultipliers();updateUI();saveGame();alert("M_X5");}};}if (btnX10) {btnX10.onclick = function() {if (!hasX10 && score >= 10000000) {score -= 10000000;hasX10 = true;recalcMultipliers();updateUI();saveGame();alert("M_X10");}};}if (rBtn) {rBtn.onclick = function() {if (rebirthLevel < 10 && score >= getRebirthCost(rebirthLevel)) {score = 0;clickPower = 1;clickUpgradeLevel = 1;autoUpgradeLevel = 1;autoClicksPerSecond = 0;upgradeClickCost = 15;upgradeAutoCost = 50;hasX2 = false;hasX5 = false;hasX10 = false;recalcMultipliers();rebirthLevel++;scoreMultiplier += 0.25;alert("Rebirth Completed!");updateUI();saveGame();}};}if (achTgl && achPnl) {achTgl.onclick = function() {achPnl.classList.toggle('open');};}if (rstBtn) {rstBtn.onclick = function() {if (confirm("Reset Game?")) {localStorage.clear();score = 0;clickPower = 1;clickUpgradeLevel = 1;autoUpgradeLevel = 1;autoClicksPerSecond = 0;upgradeClickCost = 15;upgradeAutoCost = 50;rebirthLevel = 0;scoreMultiplier = 1.0;hasX2 = false;hasX5 = false;hasX10 = false;recalcMultipliers();achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };updateUI(true);}};}if (musicToggle) {musicToggle.onclick = function() {if (!bgM) return;if (bgM.paused) {bgM.play().then(() => {musicStarted = true;musicToggle.textContent = "🔊 Звук: Вкл";}).catch(() => alert("Click game first!"));} else {bgM.pause();musicToggle.textContent = "🔇 Звук: Выкл";}};}let inputBuffer = "";let clearTimer = null;window.addEventListener('keydown', (e) => {clearTimeout(clearTimer);inputBuffer += e.key.toLowerCase();if (inputBuffer.includes("cheat")) {score += 500000;showToast("Cheat OK: +500,000!");updateUI();saveGame();inputBuffer = "";}clearTimer = setTimeout(() => { inputBuffer = ""; }, 2000);});setInterval(() => {if (autoClicksPerSecond > 0) {score += autoClicksPerSecond * scoreMultiplier * shopMultiplier;updateUI();saveGame();}}, 1000);loadGame();
