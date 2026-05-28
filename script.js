@@ -1,8 +1,10 @@
 let score = 0, clickPower = 1, autoClicksPerSecond = 0, upgradeClickCost = 15, upgradeAutoCost = 50, clickUpgradeLevel = 1, autoUpgradeLevel = 1, rebirthLevel = 0, scoreMultiplier = 1.0, musicStarted = false;
+
+// ИСПРАВЛЕНО: Массив стоимостей перерождений возвращен на место
 const rebirthCosts = [100000, 500000, 1000000, 2000000, 3500000, 5000000, 7500000, 10000000, 15000000, 25000000];
+
 let achs = { firstSteps: false, clickMaster: false, autoTycoon: false, luckySeven: false, millionaire: false };
 
-// Переменные для купленных супер-множителей (сохраняются)
 let hasX2 = false, hasX5 = false, hasX10 = false;
 let shopMultiplier = 1.0; 
 
@@ -59,12 +61,11 @@ function saveGame() {
     localStorage.setItem('ach_millionaire', achs.millionaire);
 }
 
-// ИСПРАВЛЕНО: Множители теперь жестко заменяют друг друга, выбирая максимальный уровень
 function recalcMultipliers() {
     shopMultiplier = 1.0;
     if (hasX2) shopMultiplier = 2.0;
-    if (hasX5) shopMultiplier = 5.0;  // Заменяет X2
-    if (hasX10) shopMultiplier = 10.0; // Заменяет X5
+    if (hasX5) shopMultiplier = 5.0;  
+    if (hasX10) shopMultiplier = 10.0; 
 }
 
 function showToast(title) {
@@ -105,7 +106,6 @@ function updateUI(init = false) {
     if (upCBtn) upCBtn.classList.toggle('disabled', score < upgradeClickCost);
     if (upABtn) upABtn.classList.toggle('disabled', score < upgradeAutoCost);
     
-    // ИСПРАВЛЕНО: Умное визуальное отображение заменяемых кнопок
     if (btnX2) {
         if (hasX5 || hasX10) { btnX2.classList.add('disabled'); btnX2.innerHTML = "⚡ Умножение X2<br>ЗАМЕНЕНО"; }
         else if (hasX2) { btnX2.classList.add('disabled'); btnX2.innerHTML = "⚡ Умножение X2<br>АКТИВНО"; }
@@ -166,3 +166,8 @@ if (btnX5) {
 }
 if (btnX10) {
     btnX10.onclick = function() {
+        if (!hasX10 && score >= 10000000) { score -= 10000000; hasX10 = true; recalcMultipliers(); updateUI(); saveGame(); alert("Множитель заменен на максимальный X10!"); }
+    };
+}
+
+if (rBtn) {
